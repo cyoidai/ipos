@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from 'next/link';
 import Script from 'next/script';
 import type { Metadata } from 'next';
-// import 'bootstrap/dist/css/bootstrap.css';
-// import 'bootstrap/dist/js/bootstrap.js';
 // import { useRouter } from 'next/navigation';
 // import { Geist, Geist_Mono } from "next/font/google";
 // import "./globals.css";
