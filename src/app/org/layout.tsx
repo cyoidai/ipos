@@ -11,7 +11,7 @@ export default function Layout({
       <header>
         <nav className="navbar bg-primary">
           <div className="container-fluid">
-            <Link className="navbar-brand h1 mb-0" href="/">
+            <Link className="navbar-brand h1 mb-0 text-white" href="/">
               {/* <Image
                 className="d-inline-block align-text-top"
                 src="next.svg"

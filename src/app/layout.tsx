@@ -28,7 +28,8 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en" data-bs-theme="dark">
+    // <html lang="en" data-bs-theme="dark">
+    <html lang="en">
       <head>
         <link
           rel="stylesheet"

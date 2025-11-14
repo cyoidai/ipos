@@ -1,5 +1,58 @@
+'use client';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import CreateOrganizationModal from './_CreateOrganizationModal';
+import useFetch from '@/useFetch';
 
-export default async function Home() {
+function deleteOrg(id: number) {
+  axios.delete('/api/v1/org', {
+    data: { id }
+  }).then((res) => {
+
+  }).catch((error) => {
+
+  });
+}
+
+function OrgTableBody() {
+
+  const { data, isLoading, error } = useFetch('/api/v1/org');
+  const colSpan = 3;
+
+  if (isLoading)
+    return (
+      <tbody><tr><td className="text-center" colSpan={colSpan}>Loading...</td></tr></tbody>
+    );
+  if (error)
+    return (
+      <tbody><tr><td className="text-center" colSpan={colSpan}>Internal server error</td></tr></tbody>
+    );
+  if (data.length === 0)
+    return (
+      <tbody><tr><td className="text-center" colSpan={colSpan}>No organizations found</td></tr></tbody>
+    );
+  return (
+    <tbody>
+      {
+        data.map((org, i) => {
+          return (
+            <tr key={i}>
+              <td><Link href={'/org/' + org.id}>{org.name}</Link></td>
+              <td>{org.description}</td>
+              <td className="d-flex gap-2">
+                <button className="btn btn-primary">Edit</button>
+                <button className="btn btn-danger" onClick={() => deleteOrg(org.id)}>Delete</button>
+              </td>
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  );
+}
+
+export default function Page() {
 
   return (
     <main className="m-4">
@@ -9,7 +62,7 @@ export default async function Home() {
           type="button"
           className="btn btn-primary"
           data-bs-toggle="modal"
-          data-bs-target="#newOrganizationModal"
+          data-bs-target="#createOrganizationModal"
         >
           New organization
         </button>
@@ -22,47 +75,10 @@ export default async function Home() {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>organizaiton 1</td>
-            <td>some description here</td>
-            <td className="d-flex gap-2">
-              <button className="btn btn-primary p-1">Edit</button>
-              <button className="btn btn-danger p-1">Delete</button>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-center" colSpan={3}>No organizations to display...</td>
-          </tr>
-        </tbody>
+        <OrgTableBody />
       </table>
 
-      <div className="modal" id="newOrganizationModal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">Create new organization</h1>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="name">Organization name</label>
-                  <input className="form-control" type="text" name="name" id="name" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="description">Description</label>
-                  <textarea className="form-control" name="description" id="description" />
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" className="btn btn-primary">Ok</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CreateOrganizationModal id="createOrganizationModal" />
     </main>
   );
 }
