@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function useFetch(url: string, params={}) {
-  const [data, setData] = useState(null);
+export default function useFetch<T>(url: string, params={}) {
+  const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsLoading(true);

@@ -133,8 +133,6 @@ CREATE TABLE schedule_user(
     FOREIGN KEY (schedule_id) REFERENCES schedule(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
-
-
     `);
     await client.query(`
       INSERT INTO org(name, description)

@@ -1,114 +1,61 @@
 'use client';
 
 import { useState } from 'react';
-import useFetch from '@/useFetch';
 import axios from 'axios';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import OrganizationSelect from '@/components/OrganizationSelect';
 
-function OrganizationSelect({ value, onChange }) {
-  const { data, isLoading, error } = useFetch('/api/v1/org');
-
-  if (isLoading) {
-    return (
-      <select
-        className="form-select"
-        id="organization"
-        name="organization"
-        value={value}
-        onChange={onChange}
-      >
-        <option value={0}>Loading...</option>
-      </select>
-    );
-  }
-  if (error) {
-    return (
-      <select
-        className="form-select"
-        id="organization"
-        name="organization"
-        value={value}
-        onChange={onChange}
-      >
-        <option value={0}>Internal server error</option>
-      </select>
-    );
-  }
-  return (
-    <select
-      className="form-select"
-      id="organization"
-      name="organization"
-      value={value}
-      onChange={onChange}
-    >
-      {
-        data.map((org, i) => {
-          return (
-            <option key={i} value={org.id}>{org.name}</option>
-          );
-        })
-      }
-    </select>
-  );
-}
 
 export default function Page() {
+  const router = useRouter();
 
-  const [org, setOrg] = useState('');
+  const [org, setOrg] = useState(-1);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  function handleLogin() {
+  function handleLogin(event: React.FormEvent) {
+    event.preventDefault();
     axios.post('/api/v1/auth', {
+      orgId: org,
       username,
       password
     }).then((res) => {
-      redirect('/org/' + org);
+      setPassword('');
+      router.push('/org/' + org.toString());
     }).catch((error) => {
+      setPassword('');
       alert('login failed');
     });
   }
 
   return (
     <main className="m-4">
-      <div className="card mx-auto" style={{ maxWidth: '512px' }}>
-        <div className="card-body">
+      <Card className="mx-auto" style={{ maxWidth: '512px' }}>
+        <Card.Body>
           <h3 className="card-title text-center">iPOS</h3>
-          <form onSubmit={handleLogin}>
-            <div className="mb-3">
-              <label htmlFor="organization">Organization</label>
-              <OrganizationSelect value={org} onChange={(e) => setOrg(e.target.value)} />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="username">Username</label>
-              <input
-                className="form-control"
-                id="username"
-                name="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password">Password</label>
-              <input
-                className="form-control"
-                type="password"
-                name="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+          <Form onSubmit={(e) => handleLogin(e)}>
+            <Form.Group className="mb-3" controlId='organization'>
+              <Form.Label>Organization</Form.Label>
+              <OrganizationSelect value={org} onChange={(e) => setOrg(parseInt(e.target.value, 10))} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="username">
+              <Form.Label>Username</Form.Label>
+              <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+            </Form.Group>
             <div className="d-grid gap-2 mb-3">
-              <button className="btn btn-primary" type="submit">Login</button>
+              <Button variant='primary' type="submit">Login</Button>
             </div>
-          </form>
+          </Form>
           <p>Having trouble signing in? Please contact the organization you are trying to sign into.</p>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </main>
   );
 }
