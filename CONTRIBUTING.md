@@ -27,6 +27,7 @@ Copy `.env.example` to `.env` into the same root directory and fill in the varia
 To start the development server
 
 ```bash
+npm install
 npm run dev
 ```
 
@@ -34,5 +35,6 @@ To start the api server
 
 ```bash
 cd server
+npm install
 npm run start
 ```
