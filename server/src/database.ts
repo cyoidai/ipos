@@ -7,7 +7,7 @@ const client = new Client({
   password: process.env.POSTGRES_PASSWORD,
   host: process.env.POSTGRES_HOST,
   port: parseInt(process.env.POSTGRES_PORT ?? '5432', 10),
-  database: process.env.POSTGRES_DATABASE ?? 'ipos',
+  database: process.env.POSTGRES_DATABASE ?? 'ipos'
 });
 
 client.on('error', (error: Error) => {
@@ -34,6 +34,8 @@ CREATE TABLE org(
     description text NOT NULL DEFAULT ''
 );
 
+CREATE INDEX org_search ON org(name);
+
 CREATE TABLE role(
     id       serial PRIMARY KEY,
     org_id     int4 NOT NULL,
@@ -50,7 +52,7 @@ CREATE TABLE "user"(
     username   text NOT NULL,
     first_name text NOT NULL DEFAULT '',
     last_name  text NOT NULL DEFAULT '',
-    password  bytea NOT NULL,
+    password  bytea NOT NULL, -- utf-8 sha512 hash
     role_id    int4 DEFAULT NULL,
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
@@ -68,7 +70,7 @@ CREATE TABLE item(
     description       text NOT NULL DEFAULT '',
     icon_path         text NOT NULL DEFAULT '',
     qty               int4 NOT NULL DEFAULT 0 CHECK (qty >= 0),
-    reorder_threshold int4 NOT NULL DEFAULT 0, -- 0 indicates disabled
+    reorder_threshold int4 NOT NULL DEFAULT 0, -- <=0 indicates disabled
     price   numeric(10, 2) NOT NULL DEFAULT 0 CHECK (price >= 0),
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
