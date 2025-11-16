@@ -1,6 +1,8 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import { Client } from 'pg';
 import { hashPassword } from './utils.js';
+
+dotenv.config({ path: '../.env' });
 
 const client = new Client({
   user: process.env.POSTGRES_USERNAME,
