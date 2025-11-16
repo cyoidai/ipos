@@ -34,27 +34,34 @@ app.post('/api/v1/auth', [
 });
 
 app.get('/api/v1/org', [
-  param('id').optional().isInt()
+  query('id').optional().toInt()
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    res.json({ errors: result.array() });
+    return res.status(400).json({ errors: result.array() });
   try {
-    const rows = (await client.query('SELECT id, name, description FROM org;')).rows;
-    res.json(rows);
+    if (req.query.id) {
+      const resp = (await client.query('SELECT id, name, description FROM org WHERE id = $1;', [req.query.id]));
+      res.json(resp.rows);
+    } else {
+      const resp = (await client.query('SELECT id, name, description FROM org;'));
+      res.json(resp.rows);
+    }
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
   }
 });
 
-app.post('/api/v1/org', async (req: Request, res: Response) => {
+app.post('/api/v1/org', [
+  body('name').isString(),
+  body('description').isString()
+], async (req: Request, res: Response) => {
+  const result = validationResult(req);
+  if (!result.isEmpty())
+    return res.status(400).json({ errors: result.array() });
   try {
-    const body: {
-      name?: string,
-      description?: string
-    } = req.body;
-    await client.query('INSERT INTO org(name, description) VALUES($1, $2)', [body.name, body.description]);
+    await client.query('INSERT INTO org(name, description) VALUES($1, $2)', [req.body.name, req.body.description]);
     res.json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
@@ -62,12 +69,35 @@ app.post('/api/v1/org', async (req: Request, res: Response) => {
   }
 });
 
-app.delete('/api/v1/org', async (req: Request, res: Response) => {
+app.put('/api/v1/org', [
+  body('id').isInt(),
+  body('name').isString().notEmpty(),
+  body('description').isString()
+], async (req: Request, res: Response) => {
+  const result = validationResult(req);
+  if (!result.isEmpty())
+    return res.status(400).json({ errors: result.array() });
+  if (req.body.id === rootOrgId)
+    return res.status(400).json({ msg: 'Cannot edit the root organization' });
   try {
-    const body: {
-      id?: number
-    } = req.body;
-    await client.query('DELETE FROM org WHERE id = $1', [body.id]);
+    await client.query('UPDATE org SET name = $1, description = $2 WHERE id = $3', [req.body.name, req.body.description, req.body.id]);
+    res.json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+  }
+});
+
+app.delete('/api/v1/org', [
+  body('id').isInt()
+], async (req: Request, res: Response) => {
+  const result = validationResult(req);
+  if (!result.isEmpty())
+    return res.status(400).json({ errors: result.array() });
+  try {
+    if (req.body.id === rootOrgId)
+      return res.status(400).json({ msg: 'Cannot delete the root organization' });
+    await client.query('DELETE FROM org WHERE id = $1', [req.body.id]);
     res.json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
@@ -80,5 +110,5 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });

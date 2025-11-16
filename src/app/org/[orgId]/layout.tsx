@@ -30,9 +30,9 @@ export default function Layout({
           </section>
         </nav>
       </aside>
-      <main className="w-auto">
+      <div className="w-auto">
         {children}
-      </main>
+      </div>
     </div>
   );
 }
