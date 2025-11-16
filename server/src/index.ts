@@ -105,8 +105,94 @@ app.delete('/api/v1/org', [
   }
 });
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+app.get('/api/v1/user', [
+  query('orgId').isInt()
+], async (req: Request, res: Response) => {
+  const result = validationResult(req);
+  if (!result.isEmpty())
+    return res.status(400).json({ errors: result.array() });
+  try {
+    const resp = (await client.query(`
+      SELECT "user".id, first_name AS "firstName", last_name AS "lastName", username
+        , role_id AS "roleId", role.name AS "roleName"
+        , CASE
+            WHEN role.permission IS NULL THEN 0
+            ELSE role.permission
+          END AS "permission"
+      FROM "user"
+      LEFT JOIN role ON "user".role_id = role.id
+      WHERE "user".org_id = $1;`, [req.query.orgId]));
+    res.json(resp.rows);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
+app.post('/api/v1/user', [
+  body('orgId').isInt(),
+  body('username').isString().notEmpty(),
+  body('password').isString().notEmpty(),
+  body('firstName').isString(),
+  body('lastName').isString(),
+  body('roleId').optional({ nullable: true }).isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(400).json({ errors: response.array() });
+  try {
+    await client.query(`
+      INSERT INTO "user"(org_id, username, first_name, last_name, password, role_id)
+      VALUES($1, $2, $3, $4, $5, $6);`,
+      [req.body.orgId, req.body.username, req.body.firstName, req.body.lastName, hashPassword(req.body.password), req.body.roleId]
+    );
+    console.log('User created: ' + req.body.username);
+    res.status(200).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    return res.json({ msg: error });
+  }
+});
+
+app.put('/api/v1/user', [
+  body('id').isInt(),
+  body('username').isString().notEmpty(),
+  body('firstName').isString(),
+  body('lastName').isString(),
+  body('roleId').optional({ nullable: true }).isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(400).json({ errors: response.array() });
+  try {
+    await client.query(`
+      UPDATE "user"
+      SET username = $1, first_name = $2, last_name = $3, role_id = $4
+      WHERE id = $5;`,
+      [req.body.username, req.body.firstName, req.body.lastName, req.body.roleId, req.body.id]
+    );
+    console.log('User updated: ' + req.body.id);
+    res.status(200).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    return res.json({ msg: error });
+  }
+});
+
+app.delete('/api/v1/user', [
+  body('id').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(400).json({ errors: response.array() });
+  try {
+    await client.query('DELETE FROM "user" WHERE id = $1', [req.body.id]);
+    console.log('User deleted: ' + req.body.id);
+    res.status(200).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.json({ msg: error });
+  }
 });
 
 app.listen(port, () => {

@@ -1,20 +1,27 @@
-'use state'
+'use client';
 
-export default function Page() {
+import Table from 'react-bootstrap/table';
+
+function InventoryTable() {
   return (
-    <table className="table">
+    <Table>
       <thead>
+        <th>SKU</th>
         <th>Name</th>
         <th>Qty</th>
         <th>Price</th>
+        <th>Reorder threshold</th>
+        <th></th>
       </thead>
-      <tbody>
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
+    </Table>
+  );
+}
+
+export default function Page() {
+  return (
+    <main>
+      <h1>Inventory</h1>
+      <InventoryTable />
+    </main>
   );
 }

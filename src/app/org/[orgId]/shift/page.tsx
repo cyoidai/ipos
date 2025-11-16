@@ -1,12 +1,17 @@
-'use state'
+'use client';
+
+import Table from 'react-bootstrap/Table';
 
 export default function Page() {
   return (
-    <div>
+    <main>
+      <h1 className='d-none'>Schedules and shifts</h1>
+      <h2>Schedules</h2>
+      <h2>Shifts</h2>
       <button className="btn btn-success">Clock in</button>
       <button className="btn btn-danger">Clock out</button>
       <h2>Clock in/out history</h2>
-      <table className="table">
+      <Table size='sm'>
         <thead>
           <th>Clock-in time</th>
           <th>Clock-out time</th>
@@ -19,7 +24,7 @@ export default function Page() {
             <td></td>
           </tr>
         </tbody>
-      </table>
-    </div>
+      </Table>
+    </main>
   );
 }
