@@ -3,6 +3,7 @@ import { query, body, validationResult } from 'express-validator';
 import client from './database.js';
 import { hashPassword } from './utils.js';
 import { timingSafeEqual } from 'node:crypto';
+import { constants } from 'node:http2';
 
 const app = express();
 app.use(express.json());
@@ -11,25 +12,24 @@ const rootOrgId: number = (await client.query('SELECT id FROM org WHERE name = \
 
 app.post('/api/v1/auth', [
   body('orgId').isInt(),
-  body('username').isString().notEmpty(),
+  body('username').isString().trim().notEmpty(),
   body('password').isString().notEmpty()
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    return res.status(400).json({ errors: result.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: result.array() });
   try {
     const resp = await client.query('SELECT password FROM "user" WHERE org_id = $1 AND username = $2;'
       , [req.body.orgId, req.body.username]);
     if (resp.rows.length === 0)
-      return res.status(401).json({ msg: 'Invalid credentials' });
+      return res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({ msg: 'Invalid credentials' });
     const hashedPassword = resp.rows[0].password;
-    if (timingSafeEqual(hashedPassword, hashPassword(req.body.password))) {
-      return res.status(200).json({ msg: 'OK' });
-    }
-    return res.status(401).json({ msg: 'Invalid credentials' });
+    if (timingSafeEqual(hashedPassword, hashPassword(req.body.password)))
+      return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+    return res.status(constants.HTTP_STATUS_UNAUTHORIZED).json({ msg: 'Invalid credentials' });
   } catch (error) {
     console.log(error);
-    res.sendStatus(500);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
@@ -38,7 +38,7 @@ app.get('/api/v1/org', [
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    return res.status(400).json({ errors: result.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: result.array() });
   try {
     if (req.query.id) {
       const resp = (await client.query('SELECT id, name, description FROM org WHERE id = $1;', [req.query.id]));
@@ -49,42 +49,42 @@ app.get('/api/v1/org', [
     }
   } catch (error) {
     console.log(error);
-    res.sendStatus(500);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
 app.post('/api/v1/org', [
-  body('name').isString(),
-  body('description').isString()
+  body('name').isString().trim().notEmpty(),
+  body('description').isString().trim()
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    return res.status(400).json({ errors: result.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: result.array() });
   try {
     await client.query('INSERT INTO org(name, description) VALUES($1, $2)', [req.body.name, req.body.description]);
     res.json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
-    res.status(500);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
 app.put('/api/v1/org', [
   body('id').isInt(),
-  body('name').isString().notEmpty(),
-  body('description').isString()
+  body('name').isString().trim().notEmpty(),
+  body('description').isString().trim()
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    return res.status(400).json({ errors: result.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: result.array() });
   if (req.body.id === rootOrgId)
-    return res.status(400).json({ msg: 'Cannot edit the root organization' });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'Cannot edit the root organization' });
   try {
     await client.query('UPDATE org SET name = $1, description = $2 WHERE id = $3', [req.body.name, req.body.description, req.body.id]);
     res.json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
-    res.status(500);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
@@ -93,15 +93,15 @@ app.delete('/api/v1/org', [
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    return res.status(400).json({ errors: result.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: result.array() });
   try {
     if (req.body.id === rootOrgId)
-      return res.status(400).json({ msg: 'Cannot delete the root organization' });
+      return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'Cannot delete the root organization' });
     await client.query('DELETE FROM org WHERE id = $1', [req.body.id]);
     res.json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
-    return res.json({ msg: error });
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
@@ -110,7 +110,7 @@ app.get('/api/v1/user', [
 ], async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty())
-    return res.status(400).json({ errors: result.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: result.array() });
   try {
     const resp = (await client.query(`
       SELECT "user".id, first_name AS "firstName", last_name AS "lastName", username
@@ -125,21 +125,21 @@ app.get('/api/v1/user', [
     res.json(resp.rows);
   } catch (error) {
     console.log(error);
-    res.sendStatus(500);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
 app.post('/api/v1/user', [
   body('orgId').isInt(),
-  body('username').isString().notEmpty(),
+  body('username').isString().trim().notEmpty(),
   body('password').isString().notEmpty(),
-  body('firstName').isString(),
-  body('lastName').isString(),
+  body('firstName').isString().trim(),
+  body('lastName').isString().trim(),
   body('roleId').optional({ nullable: true }).isInt()
 ], async (req: Request, res: Response) => {
   const response = validationResult(req);
   if (!response.isEmpty())
-    return res.status(400).json({ errors: response.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
   try {
     await client.query(`
       INSERT INTO "user"(org_id, username, first_name, last_name, password, role_id)
@@ -147,7 +147,7 @@ app.post('/api/v1/user', [
       [req.body.orgId, req.body.username, req.body.firstName, req.body.lastName, hashPassword(req.body.password), req.body.roleId]
     );
     console.log('User created: ' + req.body.username);
-    res.status(200).json({ msg: 'OK' });
+    res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
     return res.json({ msg: error });
@@ -156,14 +156,14 @@ app.post('/api/v1/user', [
 
 app.put('/api/v1/user', [
   body('id').isInt(),
-  body('username').isString().notEmpty(),
-  body('firstName').isString(),
-  body('lastName').isString(),
+  body('username').isString().trim().notEmpty(),
+  body('firstName').isString().trim(),
+  body('lastName').isString().trim(),
   body('roleId').optional({ nullable: true }).isInt()
 ], async (req: Request, res: Response) => {
   const response = validationResult(req);
   if (!response.isEmpty())
-    return res.status(400).json({ errors: response.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
   try {
     await client.query(`
       UPDATE "user"
@@ -172,10 +172,10 @@ app.put('/api/v1/user', [
       [req.body.username, req.body.firstName, req.body.lastName, req.body.roleId, req.body.id]
     );
     console.log('User updated: ' + req.body.id);
-    res.status(200).json({ msg: 'OK' });
+    res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
-    return res.json({ msg: error });
+    res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
@@ -184,14 +184,14 @@ app.delete('/api/v1/user', [
 ], async (req: Request, res: Response) => {
   const response = validationResult(req);
   if (!response.isEmpty())
-    return res.status(400).json({ errors: response.array() });
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
   try {
     await client.query('DELETE FROM "user" WHERE id = $1', [req.body.id]);
     console.log('User deleted: ' + req.body.id);
-    res.status(200).json({ msg: 'OK' });
+    res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
   } catch (error) {
     console.log(error);
-    res.json({ msg: error });
+    res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
   }
 });
 
