@@ -195,6 +195,101 @@ app.delete('/api/v1/user', [
   }
 });
 
+app.get('/api/v1/item', [
+  query('orgId').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    const resp = await client.query(`
+      SELECT id
+        , org_id AS "orgId"
+        , sku
+        , name
+        , description
+        , icon_path AS "iconPath"
+        , qty
+        , price
+        , reorder_threshold AS "reorderThreshold"
+      FROM item
+      WHERE org_id = $1;
+    `, [req.query.orgId]);
+    return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.post('/api/v1/item', [
+  body('orgId').isInt(),
+  body('sku').isString().trim().notEmpty(),
+  body('name').isString().trim().notEmpty(),
+  body('description').isString().trim(),
+  body('iconPath').optional({ nullable: true }).isString(),
+  body('qty').isInt(),
+  body('price').isFloat(),
+  body('reorderThreshold').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query(`
+      INSERT INTO item(org_id, sku, name, description, icon_path, qty, price, reorder_threshold)
+      VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
+      [req.body.orgId, req.body.sku, req.body.name, req.body.description
+        , req.body.iconPath, req.body.qty, req.body.price, req.body.reorderThreshold]);
+    return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.put('/api/v1/item', [
+  body('id').isInt(),
+  body('sku').isString().trim().notEmpty(),
+  body('name').isString().trim().notEmpty(),
+  body('description').isString().trim(),
+  body('iconPath').optional({ nullable: true }).isString(),
+  body('qty').isInt(),
+  body('price').isFloat(),
+  body('reorderThreshold').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query(`
+      UPDATE item
+      SET sku = $1, name = $2, description = $3, icon_path = $4, qty = $5, price = $6, reorder_threshold = $7
+      WHERE id = $8;`,
+      [req.body.sku, req.body.name, req.body.description, req.body.iconPath, req.body.qty
+        , req.body.price, req.body.reorderThreshold, req.body.id]);
+    return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.delete('/api/v1/item', [
+  body('id').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query('DELETE FROM item WHERE id = $1;', [req.body.id]);
+    return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
