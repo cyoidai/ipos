@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export default function Layout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
   params: Promise<{ orgId: string }>;
@@ -17,8 +17,9 @@ export default function Layout({
             <ul className="list-unstyled my-1">
               <li><Link href="index">Home</Link></li>
               <li><Link href="pos">POS</Link></li>
-              <li><Link href="shift">Shift and schedule</Link></li>
+              <li><Link href="shift">Shifts</Link></li>
               <li><Link href="inventory">Inventory</Link></li>
+              <li><Link href="schedule">Schedules</Link></li>
             </ul>
           </section>
           <section className="mb-2">

@@ -3,7 +3,6 @@
 import { OrganizationStruct } from '@/objects';
 import { fetchOrg } from '@/database';
 import { notFound } from 'next/navigation';
-import RoleManager from './RoleManager';
 
 async function Main({
   org
@@ -12,8 +11,7 @@ async function Main({
 }) {
   return (
     <main>
-      <h1>Manage roles</h1>
-      <RoleManager />
+      <h1>Schedules</h1>
     </main>
   );
 }

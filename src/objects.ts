@@ -1,3 +1,32 @@
+export type OrganizationStruct = {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export type UserStruct = {
+  id: number;
+  orgId: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  roleId: number | null;
+  roleName: string | null;
+  permission: number;
+}
+
+export type ItemStruct = {
+  id: number;
+  orgId: number;
+  sku: string;
+  name: string;
+  description: string;
+  iconPath: string;
+  qty: number;
+  price: number;
+  reorderThreshold: number;
+}
+
 export class Organization {
   public id: number = -1;
   public name: string = '';
@@ -5,6 +34,15 @@ export class Organization {
 }
 
 export class User {
+  constructor (user: UserStruct) {
+    this.id = user.id;
+    this.orgId = user.orgId;
+    this.username = user.username;
+    this.firstName = user.firstName;
+    this.lastName = user.lastName;
+    this.roleId = user.roleId;
+    this.permission = user.permission;
+  }
   public id: number = -1;
   public orgId: number = -1;
   public username: string = '';
@@ -21,7 +59,7 @@ export class Item {
   public sku: string = '';
   public name: string = '';
   public description: string = '';
-  public iconPath: string | null = '';
+  public iconPath: string = '';
   public qty: number = 0;
   public price: number = 0;
   public reorderThreshold: number = 0;
