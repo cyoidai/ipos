@@ -227,7 +227,7 @@ app.post('/api/v1/item', [
   body('sku').isString().trim().notEmpty(),
   body('name').isString().trim().notEmpty(),
   body('description').isString().trim(),
-  body('iconPath').optional({ nullable: true }).isString(),
+  body('iconPath').isString(),
   body('qty').isInt(),
   body('price').isFloat(),
   body('reorderThreshold').isInt()
@@ -253,7 +253,7 @@ app.put('/api/v1/item', [
   body('sku').isString().trim().notEmpty(),
   body('name').isString().trim().notEmpty(),
   body('description').isString().trim(),
-  body('iconPath').optional({ nullable: true }).isString(),
+  body('iconPath').isString(),
   body('qty').isInt(),
   body('price').isFloat(),
   body('reorderThreshold').isInt()
