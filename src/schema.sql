@@ -7,10 +7,11 @@ CREATE TABLE org(
 CREATE INDEX org_search ON org(name);
 
 CREATE TABLE role(
-    id       serial PRIMARY KEY,
-    org_id     int4 NOT NULL,
-    name       text NOT NULL,
-    permission int4 NOT NULL,
+    id        serial PRIMARY KEY,
+    org_id      int4 NOT NULL,
+    name        text NOT NULL,
+    description text NOT NULL DEFAULT '',
+    permission  int4 NOT NULL,
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
     UNIQUE (org_id, name)
@@ -40,8 +41,8 @@ CREATE TABLE item(
     description       text NOT NULL DEFAULT '',
     icon_path         text NOT NULL DEFAULT '',
     qty               int4 NOT NULL DEFAULT 0 CHECK (qty >= 0),
-    reorder_threshold int4 NOT NULL DEFAULT 0, -- <=0 indicates disabled
     price   numeric(10, 2) NOT NULL DEFAULT 0 CHECK (price >= 0),
+    reorder_threshold int4 NOT NULL DEFAULT 0, -- <=0 indicates disabled
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
     UNIQUE (org_id, sku)
