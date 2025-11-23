@@ -290,6 +290,77 @@ app.delete('/api/v1/item', [
   }
 });
 
+app.get('/api/v1/role', [
+  query('orgId').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
+      msg: 'validation error',
+      errors: response.array()
+    });
+  try {
+    const resp = await client.query('SELECT id, org_id AS "orgId", name, description, permission FROM role WHERE org_id = $1;', [req.query.orgId]);
+    return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.post('/api/v1/role', [
+  body('orgId').isInt(),
+  body('name').isString().trim().notEmpty(),
+  body('description').isString().trim(),
+  body('permission').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query('INSERT INTO role(org_id, name, description, permission) VALUES($1, $2, $3, $4);'
+      , [req.body.orgId, req.body.name, req.body.description, req.body.permission]);
+    return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.put('/api/v1/role', [
+  body('id').isInt(),
+  body('name').isString().trim().notEmpty(),
+  body('description').isString().trim(),
+  body('permission').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query('UPDATE role SET name = $1, description = $2, permission = $3 WHERE id = $4;'
+      , [req.body.name, req.body.description, req.body.permission, req.body.id]);
+    return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.delete('/api/v1/role', [
+  body('id').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query('DELETE FROM role WHERE id = $1;', [req.body.id]);
+    return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });

@@ -12,8 +12,8 @@ async function Main({
 }) {
   return (
     <main>
-      <h1>Manage roles</h1>
-      <RoleManager />
+      <h1>Roles</h1>
+      <RoleManager org={org} />
     </main>
   );
 }
