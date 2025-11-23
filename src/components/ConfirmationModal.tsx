@@ -3,15 +3,15 @@ import { Modal, Button } from 'react-bootstrap';
 export default function ConfirmationModal({
   show,
   setShow,
-  body,
   onAccept,
-  onReject
+  onReject,
+  children
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  body: string,
   onAccept?: () => void,
-  onReject?: () => void
+  onReject?: () => void,
+  children: React.ReactNode
 }) {
 
   function handleAccept() {
@@ -31,7 +31,7 @@ export default function ConfirmationModal({
       <Modal.Header closeButton>
         <Modal.Title>Confirm action</Modal.Title>
       </Modal.Header>
-      <Modal.Body>{body}</Modal.Body>
+      <Modal.Body>{children}</Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleReject}>Cancel</Button>
         <Button variant="primary" onClick={handleAccept}>Ok</Button>

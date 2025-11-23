@@ -191,12 +191,6 @@ export function DeleteUserModal({
   onReject?: () => void
 }) {
 
-  const [body, setBody] = useState('');
-
-  useEffect(() => {
-    setBody(user ? `Are you sure you want to delete ${user.firstName} ${user.lastName} (${user.username}). This action will also delete all history associated with this user. Are you sure?` : '');
-  }, [user]);
-
   function handleSubmit() {
     if (!user)
       return;
@@ -205,6 +199,7 @@ export function DeleteUserModal({
       if (onAccept)
         onAccept();
     }).then((error) => {
+      alert('failed to delete user');
       if (onReject)
         onReject();
     });
@@ -213,6 +208,8 @@ export function DeleteUserModal({
   if (!user)
     return null;
   return (
-    <ConfirmationModal show={show} setShow={setShow} body={body} onAccept={handleSubmit} />
+    <ConfirmationModal show={show} setShow={setShow} onAccept={handleSubmit}>
+      Are you sure you want to delete <b>{user.firstName} {user.lastName}</b> (<b>{user.username}</b>). This action will also delete all history associated with this user.
+    </ConfirmationModal>
   );
 }

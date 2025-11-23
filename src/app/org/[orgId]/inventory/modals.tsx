@@ -55,7 +55,7 @@ export function CreateItemModal({
             <Form.Label>Item name</Form.Label>
             <Form.Control type="text" value={item.name} onChange={(e) => setItem({ ...item, name: e.target.value })} />
           </Form.Group>
-          <Form.Group className='mb-3' controlId='name'>
+          <Form.Group className='mb-3' controlId='sku'>
             <Form.Label>SKU</Form.Label>
             <Form.Control type="text" value={item.sku} onChange={(e) => setItem({ ...item, sku: e.target.value })} />
           </Form.Group>
@@ -153,7 +153,7 @@ export function EditItemModal({
             <Form.Label>Item name</Form.Label>
             <Form.Control type="text" value={editingItem.name} onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })} />
           </Form.Group>
-          <Form.Group className='mb-3' controlId='name'>
+          <Form.Group className='mb-3' controlId='sku'>
             <Form.Label>SKU</Form.Label>
             <Form.Control type="text" value={editingItem.sku} onChange={(e) => setEditingItem({ ...editingItem, sku: e.target.value })} />
           </Form.Group>
@@ -213,12 +213,6 @@ export function DeleteItemModal({
   onReject?: () => void
 }) {
 
-  const [body, setBody] = useState('');
-
-  useEffect(() => {
-    setBody(item ? `Are you sure you want to delete "${item.name}". This action will also delete all history associated with this item. Are you sure?` : '');
-  }, [item]);
-
   function handleSubmit() {
     if (!item)
       return;
@@ -227,6 +221,7 @@ export function DeleteItemModal({
       if (onAccept)
         onAccept();
     }).then((error) => {
+      alert('failed to delete item');
       if (onReject)
         onReject();
     });
@@ -235,6 +230,9 @@ export function DeleteItemModal({
   if (!item)
     return null;
   return (
-    <ConfirmationModal show={show} setShow={setShow} body={body} onAccept={handleSubmit} />
+    <ConfirmationModal show={show} setShow={setShow} onAccept={handleSubmit}>
+      Are you sure you want to delete <b>{item.name}</b>. This action cannot be
+      undone and will also delete all history associated with this item.
+    </ConfirmationModal>
   );
 }

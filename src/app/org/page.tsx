@@ -156,7 +156,6 @@ function DeleteOrganizationModal({
   onAccept?: () => void,
   onReject?: () => void
 }) {
-  const [body, setBody] = useState('');
 
   function handleSubmit() {
     if (!org)
@@ -174,15 +173,13 @@ function DeleteOrganizationModal({
     });
   }
 
-  useEffect(() => {
-    setBody(`Are you sure you want to delete the organization "${org?.name ?? ''}" and all its data? This action cannot be undone.`);
-  }, [org]);
-
   if (!org)
     return null;
-
   return (
-    <ConfirmationModal show={show} setShow={setShow} body={body} onAccept={handleSubmit} />
+    <ConfirmationModal show={show} setShow={setShow} onAccept={handleSubmit}>
+      Are you sure you want to delete <b>{org.name}</b> and all of its data?
+      This action cannot be undone.
+    </ConfirmationModal>
   );
 }
 
