@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from 'next/link';
+import React from 'react';
 
 export default function Layout({
   children
@@ -7,7 +8,7 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div>
+    <React.Fragment>
       <header>
         <nav className="navbar bg-primary">
           <div className="container-fluid">
@@ -25,6 +26,6 @@ export default function Layout({
         </nav>
       </header>
       {children}
-    </div>
+    </React.Fragment>
   );
 }
