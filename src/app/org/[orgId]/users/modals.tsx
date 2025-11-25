@@ -1,17 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import useFetch from '@/useFetch';
-import { use } from 'react';
-import { notFound } from 'next/navigation';
-import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 import Form from 'react-bootstrap/Form';
-import { User } from '@/types';
+import { User, UserStruct } from '@/user';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { OrganizationStruct } from '@/objects';
+import RoleSelect from '@/components/RoleSelect';
 
 export function CreateUserModal({
   org,
@@ -27,19 +24,15 @@ export function CreateUserModal({
   onReject?: () => void
 }) {
 
-  const [username, setUsername] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [user, setUser] = useState<UserStruct>(new UserStruct());
   const [password, setPassword] = useState('');
-  const [roleId, setRoleId] = useState(-1);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    axios.post('/api/v1/user', {
-      orgId: org.id, username, firstName, lastName, password,
-      roleId: roleId === -1 ? null : roleId
-    }).then((res) => {
+    User.createUser(user, password).then((res) => {
       setShow(false);
+      setUser(new UserStruct());
+      setPassword('');
       if (onAccept)
         onAccept();
     }).then((error) => {
@@ -60,26 +53,32 @@ export function CreateUserModal({
         <Modal.Body>
           <Form.Group className='mb-3' controlId='firstName'>
             <Form.Label>First name</Form.Label>
-            <Form.Control type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Form.Control type="text" value={user.firstName} onChange={(e) => setUser({ ...user, firstName: e.target.value })} />
           </Form.Group>
           <Form.Group className='mb-3' controlId='lastName'>
             <Form.Label>Last name</Form.Label>
-            <Form.Control type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <Form.Control type="text" value={user.lastName} onChange={(e) => setUser({ ...user, lastName: e.target.value })} />
           </Form.Group>
           <Form.Group className="mb-3" controlId="username">
             <Form.Label>Username</Form.Label>
-            <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <Form.Control type="text" value={user.username} onChange={(e) => setUser({ ...user, username: e.target.value })} />
           </Form.Group>
           <Form.Group className="mb-3" controlId="password">
             <Form.Label>Password</Form.Label>
             <Form.Control type="text" autoComplete='off' autoCorrect='off' value={password} onChange={(e) => setPassword(e.target.value)} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="role">
+          <Form.Group className="mb-3" controlId="roleId">
             <Form.Label>Role</Form.Label>
-            <Form.Select value={roleId} onChange={(e) => setRoleId(parseInt(e.target.value, 10))}>
-              <option value={-1}>No role</option>
-              {/* TODO: roles */}
-            </Form.Select>
+            <RoleSelect
+              org={org} value={user.roleId ?? -1}
+              onChange={(e) => {
+                const n = parseInt(e.target.value);
+                if (Number.isNaN(n) || n < 0)
+                  setUser({ ...user, roleId: null });
+                else
+                  setUser({ ...user, roleId: n });
+              }}
+            />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
@@ -94,37 +93,30 @@ export function CreateUserModal({
 export function EditUserModal({
   show,
   setShow,
+  org,
   user,
   onAccept,
   onReject
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  user?: User,
+  org: OrganizationStruct,
+  user?: UserStruct,
   onAccept?: () => void,
   onReject?: () => void
 }) {
-  const [username, setUsername] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [roleId, setRoleId] = useState(-1);
+  const [editUser, setEditUser] = useState<UserStruct>(new UserStruct());
 
   useEffect(() => {
-    setUsername(user?.username ?? '');
-    setFirstName(user?.firstName ?? '');
-    setLastName(user?.lastName ?? '');
-    setRoleId(user?.roleId ?? -1);
+    if (user)
+      setEditUser(user);
   }, [user]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!user)
       return;
-    axios.put('/api/v1/user', {
-      id: user.id,
-      username, firstName, lastName,
-      roleId: roleId === -1 ? null : roleId
-    }).then((res) => {
+    User.editUser(editUser).then((res) => {
       setShow(false);
       if (onAccept)
         onAccept();
@@ -150,22 +142,28 @@ export function EditUserModal({
         <Modal.Body>
           <Form.Group className='mb-3' controlId='firstName'>
             <Form.Label>First name</Form.Label>
-            <Form.Control type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Form.Control type="text" value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} />
           </Form.Group>
           <Form.Group className='mb-3' controlId='lastName'>
             <Form.Label>Last name</Form.Label>
-            <Form.Control type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <Form.Control type="text" value={editUser.lastName} onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })} />
           </Form.Group>
           <Form.Group className="mb-3" controlId="username">
             <Form.Label>Username</Form.Label>
-            <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <Form.Control type="text" value={editUser.username} onChange={(e) => setEditUser({ ...editUser, username: e.target.value })} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="role">
+          <Form.Group className="mb-3" controlId="roleId">
             <Form.Label>Role</Form.Label>
-            <Form.Select value={roleId} onChange={(e) => setRoleId(parseInt(e.target.value, 10))}>
-              <option value={-1}>No role</option>
-              {/* TODO: roles */}
-            </Form.Select>
+            <RoleSelect
+              org={org} value={editUser.roleId ?? -1}
+              onChange={(e) => {
+                const n = parseInt(e.target.value);
+                if (Number.isNaN(n) || n < 0)
+                  setEditUser({ ...editUser, roleId: null });
+                else
+                  setEditUser({ ...editUser, roleId: n });
+              }}
+            />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
@@ -186,7 +184,7 @@ export function DeleteUserModal({
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  user?: User,
+  user?: UserStruct,
   onAccept?: () => void,
   onReject?: () => void
 }) {

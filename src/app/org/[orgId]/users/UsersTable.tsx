@@ -4,7 +4,7 @@ import { useState } from 'react';
 import useFetch from '@/useFetch';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { User } from '@/types';
+import { UserStruct } from '@/user';
 import { CreateUserModal, EditUserModal, DeleteUserModal } from './modals';
 import { OrganizationStruct } from '@/objects';
 
@@ -18,13 +18,13 @@ export default function UsersTable({
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editModalData, setEditModalData] = useState<User | undefined>(undefined);
+  const [editModalData, setEditModalData] = useState<UserStruct | undefined>(undefined);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteModalData, setDeleteModalData] = useState<User | undefined>(undefined);
+  const [deleteModalData, setDeleteModalData] = useState<UserStruct | undefined>(undefined);
 
   function TableBody() {
-    const { data, isLoading, error } = useFetch<User[]>('/api/v1/user', { orgId: org.id });
+    const { data, isLoading, error } = useFetch<UserStruct[]>('/api/v1/user', { orgId: org.id });
 
     if (isLoading)
       return (
@@ -59,12 +59,12 @@ export default function UsersTable({
     );
   }
 
-  function editUser(user: User) {
+  function editUser(user: UserStruct) {
     setEditModalData(user);
     setShowEditModal(true);
   }
 
-  function deleteUser(user: User) {
+  function deleteUser(user: UserStruct) {
     setDeleteModalData(user);
     setShowDeleteModal(true);
   }
@@ -85,7 +85,7 @@ export default function UsersTable({
         <TableBody />
       </Table>
       <CreateUserModal org={org} show={showCreateModal} setShow={setShowCreateModal} />
-      <EditUserModal show={showEditModal} setShow={setShowEditModal} user={editModalData} />
+      <EditUserModal show={showEditModal} setShow={setShowEditModal} org={org} user={editModalData} />
       <DeleteUserModal show={showDeleteModal} setShow={setShowDeleteModal} user={deleteModalData} />
     </div>
   );
