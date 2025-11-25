@@ -5,6 +5,10 @@ import { Role, RoleStruct } from '@/role';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import ListGroup from 'react-bootstrap/ListGroup';
+import ListGroupItem from 'react-bootstrap/ListGroupItem';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
 
 export function CreateRoleModal({
   show,
@@ -47,6 +51,45 @@ export function CreateRoleModal({
             <Form.Label>Description</Form.Label>
             <Form.Control as='textarea' rows={3} type="text" value={role.description} onChange={(e) => setRole({ ...role, description: e.target.value })} />
           </Form.Group>
+          <Form.Label>Permissions</Form.Label>
+          <ListGroup>
+            {
+              Role.PermissionList.map((r, i) => {
+                if (r.value == Role.Permission.Root)
+                  return null;
+                return (
+                  <ListGroupItem key={i}>
+                    <div className='d-flex' style={{
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      columnGap: '1rem'
+                    }}>
+                      <div>
+                        <b>{r.name}</b><br />
+                        <small>{r.description ?? ''}</small>
+                      </div>
+                      <ButtonGroup>
+                        <ToggleButton
+                          type="radio" variant="outline-danger" id={`${r.name}-disable`} value={1}
+                          checked={(role.permission & r.value) ? false : true}
+                          onChange={() => setRole({ ...role, permission: role.permission ^ r.value })}
+                        >
+                          &nbsp;&nbsp;X&nbsp;&nbsp;
+                        </ToggleButton>
+                        <ToggleButton
+                          type="radio" variant="outline-success" id={`${r.name}-enable`} value={0}
+                          checked={(role.permission & r.value) ? true : false}
+                          onChange={() => setRole({ ...role, permission: role.permission | r.value })}
+                        >
+                          &nbsp;&nbsp;Y&nbsp;&nbsp;
+                        </ToggleButton>
+                      </ButtonGroup>
+                    </div>
+                  </ListGroupItem>
+                );
+              })
+            }
+          </ListGroup>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>Cancel</Button>
@@ -143,6 +186,45 @@ export function EditRoleModal({
               onChange={(e) => setEditRole({ ...editRole, description: e.target.value })}
             />
           </Form.Group>
+          <Form.Label>Permissions</Form.Label>
+          <ListGroup>
+            {
+              Role.PermissionList.map((r, i) => {
+                if (r.value == Role.Permission.Root)
+                  return null;
+                return (
+                  <ListGroupItem key={i}>
+                    <div className='d-flex' style={{
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      columnGap: '1rem'
+                    }}>
+                      <div>
+                        <b>{r.name}</b><br/>
+                        <small>{r.description}</small>
+                      </div>
+                      <ButtonGroup>
+                        <ToggleButton
+                          type="radio" variant="outline-danger" id={`${r.name}-disable`} value={1}
+                          checked={(editRole.permission & r.value) ? false : true}
+                          onChange={() => setEditRole({ ...editRole, permission: editRole.permission ^ r.value })}
+                        >
+                          &nbsp;&nbsp;X&nbsp;&nbsp;
+                        </ToggleButton>
+                        <ToggleButton
+                          type="radio" variant="outline-success" id={`${r.name}-enable`}  value={0}
+                          checked={(editRole.permission & r.value) ? true : false}
+                          onChange={() => setEditRole({ ...editRole, permission: editRole.permission | r.value }) }
+                        >
+                          &nbsp;&nbsp;Y&nbsp;&nbsp;
+                        </ToggleButton>
+                      </ButtonGroup>
+                    </div>
+                  </ListGroupItem>
+                );
+              })
+            }
+          </ListGroup>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>Cancel</Button>

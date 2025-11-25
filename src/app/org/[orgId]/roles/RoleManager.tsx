@@ -43,20 +43,20 @@ export default function RoleTable({
     if (isLoading)
       return (
         <tbody>
-          <tr><td colSpan={cols}>Loading...</td></tr>
+          <tr><td className='text-center' colSpan={cols}>Loading...</td></tr>
         </tbody>
       );
     if (error)
       return (
         <tbody>
-          <tr><td colSpan={cols}>Something went wrong while trying to load roles</td></tr>
+          <tr><td className='text-center' colSpan={cols}>Something went wrong while trying to load roles</td></tr>
         </tbody>
       );
 
     if (!data || data.length === 0)
       return (
         <tbody>
-          <tr><td colSpan={cols}>No roles to display</td></tr>
+          <tr><td className='text-center' colSpan={cols}>No roles to display</td></tr>
         </tbody>
       );
 
