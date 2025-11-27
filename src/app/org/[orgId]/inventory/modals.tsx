@@ -186,7 +186,7 @@ export function EditItemModal({
             <Form.Control type="number" min={0} value={editingItem.reorderThreshold}
               onChange={(e) => {
                 const n = parseInt(e.target.value);
-                setEditingItem({ ...item, reorderThreshold: Number.isNaN(n) ? 0 : n });
+                setEditingItem({ ...editingItem, reorderThreshold: Number.isNaN(n) ? 0 : n });
               }} />
           </Form.Group>
         </Modal.Body>
