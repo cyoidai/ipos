@@ -4,27 +4,27 @@ import { useState } from 'react';
 import useFetch from '@/useFetch';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { UserStruct } from '@/user';
+import { User } from '@/user';
 import { CreateUserModal, EditUserModal, DeleteUserModal } from './modals';
-import { OrganizationStruct } from '@/objects';
+import { Organization } from '@/org';
 
 export default function UsersTable({
   org
 }: {
-  org: OrganizationStruct
+  org: Organization
 }) {
   const cols = 4;
 
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editModalData, setEditModalData] = useState<UserStruct | undefined>(undefined);
+  const [editModalData, setEditModalData] = useState<User | undefined>(undefined);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteModalData, setDeleteModalData] = useState<UserStruct | undefined>(undefined);
+  const [deleteModalData, setDeleteModalData] = useState<User | undefined>(undefined);
 
   function TableBody() {
-    const { data, isLoading, error } = useFetch<UserStruct[]>('/api/v1/user', { orgId: org.id });
+    const { data, isLoading, error } = useFetch<User[]>('/api/v1/user', { orgId: org.id });
 
     if (isLoading)
       return (
@@ -59,12 +59,12 @@ export default function UsersTable({
     );
   }
 
-  function editUser(user: UserStruct) {
+  function editUser(user: User) {
     setEditModalData(user);
     setShowEditModal(true);
   }
 
-  function deleteUser(user: UserStruct) {
+  function deleteUser(user: User) {
     setDeleteModalData(user);
     setShowDeleteModal(true);
   }

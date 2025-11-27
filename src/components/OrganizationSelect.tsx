@@ -1,5 +1,5 @@
 import useFetch from '@/useFetch';
-import { Organization } from '@/types';
+import { Organization } from '@/org';
 import Form from 'react-bootstrap/Form';
 
 export default function OrganizationSelect({

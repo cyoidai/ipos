@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export class UserStruct {
+export class User {
   id: number = -1;
   orgId: number = -1;
   username: string = '';
@@ -11,8 +11,8 @@ export class UserStruct {
   permission: number = 0;
 }
 
-export class User {
-  public static createUser(user: UserStruct, password: string) {
+export class UserOPS {
+  public static createUser(user: User, password: string) {
     return axios.post('/api/v1/user', {
       orgId: user.orgId,
       username: user.username,
@@ -22,7 +22,7 @@ export class User {
       roleId: user.roleId
     });
   }
-  public static editUser(user: UserStruct) {
+  public static editUser(user: User) {
     return axios.put('/api/v1/user', {
       id: user.id,
       username: user.username,
@@ -31,7 +31,7 @@ export class User {
       roleId: user.roleId
     });
   }
-  public static deleteUser(user: UserStruct) {
+  public static deleteUser(user: User) {
     return axios.delete('/api/v1/user', { data: user.id });
   }
 }

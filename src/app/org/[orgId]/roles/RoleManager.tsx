@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import useFetch from '@/useFetch';
-import { OrganizationStruct } from '@/objects';
-import { RoleStruct } from '@/role';
+import { Organization } from '@/org';
+import { Role } from '@/role';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { CreateRoleModal, EditRoleModal, DeleteRoleModal } from './modals';
@@ -12,34 +12,34 @@ import { CreateRoleModal, EditRoleModal, DeleteRoleModal } from './modals';
 export default function RoleTable({
   org
 }: {
-  org: OrganizationStruct
+  org: Organization
 }) {
 
   const cols = 3;
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editModalData, setEditModalData] = useState<RoleStruct | undefined>(undefined);
+  const [editModalData, setEditModalData] = useState<Role | undefined>(undefined);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteModalData, setDeleteModalData] = useState<RoleStruct | undefined>(undefined);
+  const [deleteModalData, setDeleteModalData] = useState<Role | undefined>(undefined);
 
   function handleCreate() {
     setShowCreateModal(true);
   }
 
-  function handleEdit(role: RoleStruct) {
+  function handleEdit(role: Role) {
     setEditModalData(role);
     setShowEditModal(true);
   }
 
-  function handleDelete(role: RoleStruct) {
+  function handleDelete(role: Role) {
     setDeleteModalData(role);
     setShowDeleteModal(true);
   }
 
   function TableBody() {
-    const { data, isLoading, error } = useFetch<RoleStruct[]>('/api/v1/role', { orgId: org.id });
+    const { data, isLoading, error } = useFetch<Role[]>('/api/v1/role', { orgId: org.id });
     if (isLoading)
       return (
         <tbody>

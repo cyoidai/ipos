@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { Client } from 'pg';
-import { OrganizationStruct } from './objects';
+import { Organization } from './org';
 
 dotenv.config({ path: '@/../.env' });
 
@@ -18,7 +18,7 @@ client.on('error', (error: Error) => {
 
 await client.connect();
 
-export async function fetchOrg(id: number): Promise<OrganizationStruct | null> {
+export async function fetchOrg(id: number): Promise<Organization | null> {
   const res = await client.query('SELECT id, name, description FROM org WHERE id = $1;', [id]);
   if (res.rowCount ?? 0 > 0) {
     return {

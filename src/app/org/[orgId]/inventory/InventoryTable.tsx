@@ -2,13 +2,18 @@
 
 import useFetch from '@/useFetch';
 import Table from 'react-bootstrap/table';
-import { Item, OrganizationStruct } from '@/objects';
+import { Item } from '@/item';
+import { Organization } from '@/org';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { CreateItemModal, EditItemModal, DeleteItemModal } from './modals';
 
-export default function InventoryTable({ org }: { org: OrganizationStruct }) {
+export default function InventoryTable({
+  org
+}: {
+  org: Organization
+}) {
 
   const cols = 7;
 

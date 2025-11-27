@@ -1,6 +1,7 @@
 'use client';
 
-import { Item, OrganizationStruct } from '@/objects';
+import { Organization } from '@/org';
+import { Item } from '@/item';
 import Button from 'react-bootstrap/Button';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -18,7 +19,7 @@ export function CreateItemModal({
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  org: OrganizationStruct,
+  org: Organization,
   onAccept?: () => void,
   onReject?: () => void
 }) {

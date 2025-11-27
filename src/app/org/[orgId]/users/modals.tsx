@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import axios from 'axios';
 import Form from 'react-bootstrap/Form';
-import { User, UserStruct } from '@/user';
+import { User, UserOPS } from '@/user';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import { OrganizationStruct } from '@/objects';
+import { Organization } from '@/org';
 import RoleSelect from '@/components/RoleSelect';
 
 export function CreateUserModal({
@@ -17,21 +16,21 @@ export function CreateUserModal({
   onAccept,
   onReject
 }: {
-  org: OrganizationStruct,
+  org: Organization,
   show: boolean,
   setShow: (show: boolean) => void,
   onAccept?: () => void,
   onReject?: () => void
 }) {
 
-  const [user, setUser] = useState<UserStruct>(new UserStruct());
+  const [user, setUser] = useState<User>(new User());
   const [password, setPassword] = useState('');
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    User.createUser(user, password).then((res) => {
+    UserOPS.createUser(user, password).then((res) => {
       setShow(false);
-      setUser(new UserStruct());
+      setUser(new User());
       setPassword('');
       if (onAccept)
         onAccept();
@@ -100,12 +99,12 @@ export function EditUserModal({
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  org: OrganizationStruct,
-  user?: UserStruct,
+  org: Organization,
+    user?: User,
   onAccept?: () => void,
   onReject?: () => void
 }) {
-  const [editUser, setEditUser] = useState<UserStruct>(new UserStruct());
+  const [editUser, setEditUser] = useState<User>(new User());
 
   useEffect(() => {
     if (user)
@@ -116,7 +115,7 @@ export function EditUserModal({
     event.preventDefault();
     if (!user)
       return;
-    User.editUser(editUser).then((res) => {
+    UserOPS.editUser(editUser).then((res) => {
       setShow(false);
       if (onAccept)
         onAccept();
@@ -184,7 +183,7 @@ export function DeleteUserModal({
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  user?: UserStruct,
+    user?: User,
   onAccept?: () => void,
   onReject?: () => void
 }) {
@@ -192,7 +191,7 @@ export function DeleteUserModal({
   function handleSubmit() {
     if (!user)
       return;
-    axios.delete('/api/v1/user', { data: { id: user.id } }).then((res) => {
+    UserOPS.deleteUser(user).then((res) => {
       setShow(false);
       if (onAccept)
         onAccept();

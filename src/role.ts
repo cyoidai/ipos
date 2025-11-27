@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-export class RoleStruct {
-  id: number = -1;
-  orgId: number = -1;
-  name: string = '';
-  description: string = '';
-  permission: number = 0;
+export class Role {
+  public id: number = -1;
+  public orgId: number = -1;
+  public name: string = '';
+  public description: string = '';
+  public permission: number = 0;
 }
 
-export class Role {
+export class RoleOPS {
   public static readonly Permission = {
     /** Full control over all organizations */
     Root: 1 << 31,
@@ -41,70 +41,70 @@ export class Role {
     {
       name: 'Root',
       description: 'Has full control over all organizations',
-      value: Role.Permission.Root
+      value: RoleOPS.Permission.Root
     },
     {
       name: 'Administrator',
       description: 'Grants full control over the organization. This permission overrides all other permissions and should be given out sparingly.',
-      value: Role.Permission.Administrator
+      value: RoleOPS.Permission.Administrator
     },
     {
       name: 'Manage users',
       description: 'Ability to create, modify (this includes assigning roles), and delete users.',
-      value: Role.Permission.ManageUsers
+      value: RoleOPS.Permission.ManageUsers
     },
     {
       name: 'Manage roles',
       description: 'Ability to create, modify, and delete roles.',
-      value: Role.Permission.ManageRoles
+      value: RoleOPS.Permission.ManageRoles
     },
     {
       name: 'Reports',
       description: 'Ability to generate and view previously generated reports.',
-      value: Role.Permission.Reports
+      value: RoleOPS.Permission.Reports
     },
     {
       name: 'View shift history',
       description: 'Ability to view clock-in and clock-out times of all users.',
-      value: Role.Permission.ViewShiftHistory
+      value: RoleOPS.Permission.ViewShiftHistory
     },
     {
       name: 'View order history',
-      value: Role.Permission.ViewOrderHistory
+      value: RoleOPS.Permission.ViewOrderHistory
     },
     {
       name: 'Manage inventory',
       description: 'Ability to create, edit, and delete items. This permission also grants restock notifications.',
-      value: Role.Permission.ManageInventory
+      value: RoleOPS.Permission.ManageInventory
     },
     {
       name: 'View inventory',
       description: 'Ability to view inventory state: items, stock counts, etc. but not modify anything.',
-      value: Role.Permission.ViewInventory
+      value: RoleOPS.Permission.ViewInventory
     },
     {
       name: 'Manage schedules',
       description: 'Ability to create, edit, and delete schedules.',
-      value: Role.Permission.ManageSchedules
+      value: RoleOPS.Permission.ManageSchedules
     },
     {
       name: 'View schedule',
       description: 'Ability to view current and upcoming schedules',
-      value: Role.Permission.ViewSchedule
+      value: RoleOPS.Permission.ViewSchedule
     },
     {
       name: 'POS',
       description: 'View and interact the point-of-sale interface. This allows the user to ',
-      value: Role.Permission.POS
+      value: RoleOPS.Permission.POS
     },
     {
       name: 'Clock-in/out',
       description: 'Ability to clock-in and clock-out as well as see previous clock in/out history.',
-      value: Role.Permission.ClockInOut
+      value: RoleOPS.Permission.ClockInOut
     }
   ];
 
-  public static createRole(role: RoleStruct) {
+  public static createRole(role: Role) {
     return axios.post('/api/v1/role', {
       orgId: role.orgId,
       name: role.name,
@@ -113,7 +113,7 @@ export class Role {
     });
   }
 
-  public static editRole(role: RoleStruct) {
+  public static editRole(role: Role) {
     return axios.put('/api/v1/role', {
       id: role.id,
       name: role.name,
@@ -122,7 +122,7 @@ export class Role {
     });
   }
 
-  public static deleteRole(role: RoleStruct) {
+  public static deleteRole(role: Role) {
     return axios.delete('/api/v1/role', { data: { id: role.id } });
   }
 }

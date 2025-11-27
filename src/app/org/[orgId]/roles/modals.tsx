@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import { OrganizationStruct } from '@/objects';
-import { Role, RoleStruct } from '@/role';
+import { Organization } from '@/org';
+import { Role, RoleOPS } from '@/role';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -17,16 +17,16 @@ export function CreateRoleModal({
 }: {
   show: boolean,
   setShow: (open: boolean) => void,
-  org: OrganizationStruct
+  org: Organization
 }) {
 
-  const [role, setRole] = useState<RoleStruct>({ ...new RoleStruct(), orgId: org.id });
+  const [role, setRole] = useState<Role>({ ...new Role(), orgId: org.id });
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    Role.createRole(role).then((res) => {
+    RoleOPS.createRole(role).then((res) => {
       handleClose();
-      setRole({ ...new RoleStruct(), orgId: org.id });
+      setRole({ ...new Role(), orgId: org.id });
     }).catch((error) => {
       alert('something went wrong');
     });
@@ -54,8 +54,8 @@ export function CreateRoleModal({
           <Form.Label>Permissions</Form.Label>
           <ListGroup>
             {
-              Role.PermissionList.map((r, i) => {
-                if (r.value == Role.Permission.Root)
+              RoleOPS.PermissionList.map((r, i) => {
+                if (r.value == RoleOPS.Permission.Root)
                   return null;
                 return (
                   <ListGroupItem key={i}>
@@ -107,7 +107,7 @@ export function DeleteRoleModal({
 }: {
   show: boolean,
   setShow: (open: boolean) => void,
-  role?: RoleStruct
+  role?: Role
 }) {
 
   function handleClose() {
@@ -117,7 +117,7 @@ export function DeleteRoleModal({
   function handleAccept() {
     if (!role)
       return;
-    Role.deleteRole(role).then((res) => {
+    RoleOPS.deleteRole(role).then((res) => {
       handleClose();
     }).catch((error) => {
       alert('failed to delete role');
@@ -142,10 +142,10 @@ export function EditRoleModal({
 }: {
   show: boolean,
   setShow: (show: boolean) => void,
-  role?: RoleStruct
+  role?: Role
 }) {
 
-  const [editRole, setEditRole] = useState(new RoleStruct());
+  const [editRole, setEditRole] = useState(new Role());
 
   useEffect(() => {
     if (role)
@@ -154,7 +154,7 @@ export function EditRoleModal({
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    Role.editRole(editRole!).then((res) => {
+    RoleOPS.editRole(editRole!).then((res) => {
       handleClose();
     }).catch((error) => {
       alert('failed to edit role');
@@ -189,8 +189,8 @@ export function EditRoleModal({
           <Form.Label>Permissions</Form.Label>
           <ListGroup>
             {
-              Role.PermissionList.map((r, i) => {
-                if (r.value == Role.Permission.Root)
+              RoleOPS.PermissionList.map((r, i) => {
+                if (r.value == RoleOPS.Permission.Root)
                   return null;
                 return (
                   <ListGroupItem key={i}>

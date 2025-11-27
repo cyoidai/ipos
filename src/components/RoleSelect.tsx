@@ -1,5 +1,5 @@
-import { OrganizationStruct } from '@/objects';
-import { RoleStruct } from '@/role';
+import { Organization } from '@/org';
+import { Role } from '@/role';
 import useFetch from '@/useFetch';
 import { ChangeEventHandler } from 'react';
 import Form from 'react-bootstrap/Form';
@@ -9,12 +9,12 @@ export default function RoleSelect({
   value,
   onChange
 }: {
-  org: OrganizationStruct,
+  org: Organization,
   value?: string | number | readonly string[],
   onChange?: ChangeEventHandler<HTMLSelectElement>
 }) {
 
-  const { data, isLoading, error } = useFetch<RoleStruct[]>('/api/v1/role', { orgId: org.id });
+  const { data, isLoading, error } = useFetch<Role[]>('/api/v1/role', { orgId: org.id });
 
   if (isLoading)
     return (
