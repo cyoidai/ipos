@@ -36,8 +36,6 @@ CREATE TABLE org(
     description text NOT NULL DEFAULT ''
 );
 
-CREATE INDEX org_search ON org(name);
-
 CREATE TABLE role(
     id        serial PRIMARY KEY,
     org_id      int4 NOT NULL,
@@ -63,8 +61,6 @@ CREATE TABLE "user"(
     UNIQUE (org_id, username)
 );
 
-CREATE INDEX user_search ON "user"(org_id, username);
-
 CREATE TABLE item(
     id             serial8 PRIMARY KEY,
     org_id            int4 NOT NULL,
@@ -75,12 +71,17 @@ CREATE TABLE item(
     qty               int4 NOT NULL DEFAULT 0 CHECK (qty >= 0),
     price   numeric(10, 2) NOT NULL DEFAULT 0 CHECK (price >= 0),
     reorder_threshold int4 NOT NULL DEFAULT 0, -- <=0 indicates disabled
+    search        tsvector GENERATED ALWAYS AS (
+           setweight(to_tsvector('english', coalesce(name,        '')), 'A')
+        || setweight(to_tsvector('english', coalesce(sku,         '')), 'B')
+        || setweight(to_tsvector('english', coalesce(description, '')), 'C')
+    ) STORED,
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
     UNIQUE (org_id, sku)
 );
 
-CREATE INDEX inventory_search ON item(org_id, sku);
+CREATE INDEX item_search_gin ON item USING GIN (search);
 
 CREATE TABLE "order"(
     id         serial8 PRIMARY KEY,
@@ -95,8 +96,7 @@ CREATE TABLE "order"(
 CREATE TABLE order_item(
     order_id  int8 NOT NULL,
     item_id   int4 NOT NULL,
-    item_name text NOT NULL,
-    qty       int  NOT NULL,
+    qty       int  NOT NULL DEFAULT 1,
 
     PRIMARY KEY (order_id, item_id),
     FOREIGN KEY (order_id) REFERENCES "order"(id) ON DELETE CASCADE,
@@ -155,20 +155,5 @@ CREATE TABLE schedule_user(
   client.query('ROLLBACK;');
   console.log('Failed to initialize database', error);
 }
-
-
-// try {
-//   const res = await client.query('SELECT COUNT(*) FROM org;');
-//   if (res.rows[0][0] == 0) {
-//     client.query(`
-//     INSERT INTO org(name, description)
-//     VALUES("default", "Reserved for the root user");
-//   `);
-//   }
-// } catch (error) {
-//   console.log('Failed to initialize database', error);
-// } finally {
-//   await client.end()
-// }
 
 export default client;

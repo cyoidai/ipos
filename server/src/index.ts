@@ -44,7 +44,7 @@ app.get('/api/v1/org', [
       const resp = (await client.query('SELECT id, name, description FROM org WHERE id = $1;', [req.query.id]));
       res.json(resp.rows);
     } else {
-      const resp = (await client.query('SELECT id, name, description FROM org;'));
+      const resp = (await client.query('SELECT id, name, description FROM org ORDER BY name ASC;'));
       res.json(resp.rows);
     }
   } catch (error) {
@@ -196,26 +196,40 @@ app.delete('/api/v1/user', [
 });
 
 app.get('/api/v1/item', [
-  query('orgId').isInt()
+  query('orgId').isInt(),
+  query('query').optional({ nullable: true }).isString().trim()
 ], async (req: Request, res: Response) => {
   const response = validationResult(req);
   if (!response.isEmpty())
     return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
   try {
+    if (req.query.query) {
+      let q: string = '';
+      (req.query.query as string)
+        .split(/\s+/)
+        .forEach((s, i) => {
+          if (q.length === 0)
+            q = s + ':*';
+          else
+            q = q + ' & ' + s + ':*';
+      });
+      const resp = await client.query(`
+        SELECT id, org_id AS "orgId", sku, name, description, icon_path AS "iconPath"
+          , qty, price, reorder_threshold AS "reorderThreshold"
+        FROM item, to_tsquery('english', $2) as q
+        WHERE org_id = $1 AND search @@ q
+        ORDER BY ts_rank(search, q) DESC;`, [req.query.orgId, q]);
+      return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
+    } else {
     const resp = await client.query(`
-      SELECT id
-        , org_id AS "orgId"
-        , sku
-        , name
-        , description
-        , icon_path AS "iconPath"
-        , qty
-        , price
-        , reorder_threshold AS "reorderThreshold"
+        SELECT id, org_id AS "orgId", sku, name, description, icon_path AS "iconPath"
+          , qty, price, reorder_threshold AS "reorderThreshold"
       FROM item
-      WHERE org_id = $1;
+        WHERE org_id = $1
+        ORDER BY name ASC;
     `, [req.query.orgId]);
     return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
+    }
   } catch (error) {
     console.log(error);
     res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
