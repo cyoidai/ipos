@@ -3,12 +3,18 @@
 import ListGroup from 'react-bootstrap/ListGroup';
 import ListGroupItem from 'react-bootstrap/ListGroupItem';
 import { usePathname } from 'next/navigation';
+import Button from 'react-bootstrap/Button';
+import { useState } from 'react';
 
-export default function Sidebar() {
+export default function Sidebar({
+  hidden
+}: {
+  hidden?: boolean
+}) {
   const pathname = usePathname();
   return (
     <aside>
-      <nav>
+      <nav hidden={hidden}>
         <ListGroup variant='flush'>
           <ListGroupItem><strong>Operations</strong></ListGroupItem>
           <ListGroupItem action active={pathname.match(/\/index/)     ? true : false} href='index'>Home</ListGroupItem>

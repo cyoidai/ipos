@@ -18,11 +18,11 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'iPOS',
-  description: 'Interactive POS',
+  description: 'Interactive POS'
 };
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
@@ -31,6 +31,7 @@ export default function RootLayout({
     // <html lang="en" data-bs-theme="dark">
     <html lang="en">
       <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -38,7 +39,11 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body>
+      <body style={{
+        display: 'grid',
+        gridTemplateRows: 'auto 1fr auto',
+        height: '100vh'
+      }}>
         {children}
         <Script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

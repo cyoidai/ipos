@@ -22,7 +22,8 @@ const eslintConfig = [
     rules: {
       semi: [ 'error', 'always' ],
       'comma-dangle': [ 'error', 'never' ],
-      quotes: [ 'error', 'single' ]
+      'object-curly-spacing': ['error', 'always']
+      // quotes: [ 'error', 'single' ],
     }
   }
 ];

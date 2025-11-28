@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Form from 'react-bootstrap/Form';
@@ -32,30 +32,33 @@ export default function Page() {
   }
 
   return (
-    <main className="m-4">
-      <Card className="mx-auto" style={{ maxWidth: '512px' }}>
-        <Card.Body>
-          <h3 className="card-title text-center">iPOS</h3>
-          <Form onSubmit={(e) => handleLogin(e)}>
-            <Form.Group className="mb-3" controlId='organization'>
-              <Form.Label>Organization</Form.Label>
-              <OrganizationSelect value={org} onChange={(e) => setOrg(parseInt(e.target.value, 10))} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="username">
-              <Form.Label>Username</Form.Label>
-              <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="password">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-            </Form.Group>
-            <div className="d-grid gap-2 mb-3">
-              <Button variant='primary' type="submit">Login</Button>
-            </div>
-          </Form>
-          <p>Having trouble signing in? Please contact the organization you are trying to sign into.</p>
-        </Card.Body>
-      </Card>
-    </main>
+    <React.Fragment>
+      <header />
+      <main className="m-4">
+        <Card className="mx-auto" style={{ maxWidth: '512px' }}>
+          <Card.Body>
+            <h3 className="card-title text-center">iPOS</h3>
+            <Form onSubmit={(e) => handleLogin(e)}>
+              <Form.Group className="mb-3" controlId='organization'>
+                <Form.Label>Organization</Form.Label>
+                <OrganizationSelect value={org} onChange={(e) => setOrg(parseInt(e.target.value, 10))} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="username">
+                <Form.Label>Username</Form.Label>
+                <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="password">
+                <Form.Label>Password</Form.Label>
+                <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+              </Form.Group>
+              <div className="d-grid gap-2 mb-3">
+                <Button variant='primary' type="submit">Login</Button>
+              </div>
+            </Form>
+            <p>Having trouble signing in? Please contact the organization you are trying to sign into.</p>
+          </Card.Body>
+        </Card>
+      </main>
+    </React.Fragment>
   );
 }

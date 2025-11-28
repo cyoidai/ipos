@@ -8,7 +8,7 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-import { Organization } from '@/types';
+import { Organization } from '@/org';
 
 export function CreateOrganizationModal({
   show,
