@@ -221,14 +221,14 @@ app.get('/api/v1/item', [
         ORDER BY ts_rank(search, q) DESC;`, [req.query.orgId, q]);
       return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
     } else {
-    const resp = await client.query(`
+      const resp = await client.query(`
         SELECT id, org_id AS "orgId", sku, name, description, icon_path AS "iconPath"
           , qty, price, reorder_threshold AS "reorderThreshold"
-      FROM item
+        FROM item
         WHERE org_id = $1
         ORDER BY name ASC;
-    `, [req.query.orgId]);
-    return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
+      `, [req.query.orgId]);
+      return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
     }
   } catch (error) {
     console.log(error);
@@ -369,6 +369,41 @@ app.delete('/api/v1/role', [
   try {
     await client.query('DELETE FROM role WHERE id = $1;', [req.body.id]);
     return res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.get('/api/v1/order', [
+  query('orgId').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    const resp = await client.query(`
+      SELECT "order".id AS "id", "order".org_id AS "orgId", "user".id AS "authorizedBy_userId", "order".time
+      FROM "order"
+      INNER JOIN order_item ON order_item.order_id = "order".id
+      INNER JOIN item ON order_item.item_id = item.id
+      INNER JOIN "user" ON "user".id = "order".authorized_by
+      WHERE "order".org_id = $1;
+      `, [req.query.orgId]);
+    // const data = [];
+    // resp.rows.forEach((obj) => {
+    //   data.push({
+    //     id: obj.id,
+    //     orgId: obj.orgId,
+    //     authorizedBy: {
+    //       userId: obj.authorizedBy_id,
+    //       username: obj.authorizedBy_username,
+    //       firstName: obj.authorizedBy_firstName,
+    //       lastName: obj.authorizedBy_lastName
+    //     }
+    //   });
+    // });
+    return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
   } catch (error) {
     console.log(error);
     res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);

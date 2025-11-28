@@ -55,16 +55,22 @@ CREATE TABLE "order"(
     id         serial8 PRIMARY KEY,
     org_id        int4 NOT NULL,
     authorized_by int4 NOT NULL,
+    subtotal      numeric(10, 2) NOT NULL,
+    tax           numeric(10, 2) NOT NULL,
+    total         numeric(10, 2) NOT NULL,
     time          int8 NOT NULL,
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
     FOREIGN KEY (authorized_by) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
+CREATE INDEX order_search ON "order"(org_id, time);
+
 CREATE TABLE order_item(
-    order_id  int8 NOT NULL,
-    item_id   int4 NOT NULL,
-    qty       int  NOT NULL DEFAULT 1,
+    order_id        int8 NOT NULL,
+    item_id         int4 NOT NULL,
+    price numeric(10, 2) NOT NULL, -- store copy of item's price at the time of the order
+    qty              int NOT NULL DEFAULT 1 CHECK (qty != 0),
 
     PRIMARY KEY (order_id, item_id),
     FOREIGN KEY (order_id) REFERENCES "order"(id) ON DELETE CASCADE,
