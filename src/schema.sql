@@ -68,7 +68,7 @@ CREATE TABLE order_item(
 
     PRIMARY KEY (order_id, item_id),
     FOREIGN KEY (order_id) REFERENCES "order"(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE RESTRICT
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
 );
 
 CREATE TABLE shift_history(

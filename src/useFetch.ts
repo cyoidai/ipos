@@ -1,11 +1,13 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function useFetch<T>(url: string, params={}) {
+export default function useFetch<T>(url: string, params?: Record<string, any>) {
   const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const params_str = params ? JSON.stringify(params) : undefined;
 
   useEffect(() => {
     setIsLoading(true);
@@ -20,7 +22,7 @@ export default function useFetch<T>(url: string, params={}) {
       setIsLoading(false);
       setError('error');
     });
-  }, [url]);
+  }, [url, params_str]);
 
   return { data, isLoading, error };
 }

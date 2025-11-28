@@ -17,6 +17,7 @@ export default function InventoryTable({
 
   const cols = 7;
 
+  const [query, setQuery] = useState<string>('');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -37,7 +38,7 @@ export default function InventoryTable({
 
   function TableBody() {
 
-    const { data, isLoading, error } = useFetch<Item[]>('/api/v1/item', { orgId: org.id });
+    const { data, isLoading, error } = useFetch<Item[]>('/api/v1/item', { orgId: org.id, query });
 
     if (isLoading) {
       return (
@@ -95,12 +96,10 @@ export default function InventoryTable({
   }
   return (
     <div>
-      <Form>
-        <Form.Group className='mb-3' controlId='query'>
-          <Form.Label>Search</Form.Label>
-          <Form.Control type='text' placeholder='Search by name or SKU' />
-        </Form.Group>
-      </Form>
+      <Form.Control
+        type='text' placeholder='Search by name or SKU' value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
       <Table size='sm' hover>
         <thead>
           <tr>
