@@ -11,5 +11,8 @@ export class Order {
   orgId: number = -1;
   authorized_by: User = new User();
   items: OrderItem[] = [];
-  time: Date = new Date();
+  subtotal: number = 0;
+  tax: number = 0;
+  total: number = 0;
+  time: number = 0;
 }

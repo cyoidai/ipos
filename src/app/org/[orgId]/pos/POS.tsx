@@ -3,27 +3,16 @@
 import { Mosaic, MosaicNode, MosaicWindow } from 'react-mosaic-component';
 import 'react-mosaic-component/react-mosaic-component.css';
 import './mosaic.css';
-import { Item } from '@/item';
-import { OrderItem } from '@/order';
+import { Order, OrderItem } from '@/order';
 import { Organization } from '@/org';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import ItemList from './ItemList';
 import OrderItemList from './OrderItemList';
 import OrderTotal from './OrderTotal';
 import Payment from './Payment';
-import React, { useState, useEffect } from 'react';
-import useFetch from '@/useFetch';
+import React, { useState } from 'react';
 
 type ViewId = 'inventory' | 'items' | 'total' | 'new' | 'payment';
-
-const ELEMENT_MAP: { [viewId: ViewId]: JSX.Element } = {
-  inventory: <div>test</div>,
-  items: <div>Top Right Window</div>,
-  total: <div>Bottom Right Window</div>,
-  payment: <div></div>,
-  new: null
-};
 
 const TITLE_MAP: Record<ViewId, string> = {
   inventory: 'Inventory',
@@ -39,9 +28,9 @@ export default function POS({
   org: Organization
 }) {
 
-  const [orderItemsMap, setOrderItemsMap] = useState<{ [sku: string]: OrderItem; }>({});
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [treeState, setTreeState] = useState<MosaicNode<ViewId> | null>({
+  const [order, setOrder] = useState<Order>(new Order());
+  const [orderItems, setOrderItems] = useState<Map<string, OrderItem>>(new Map<string, OrderItem>());
+  const [mosaicState, setMosaicState] = useState<MosaicNode<ViewId> | null>({
     direction: 'row',
     first: {
       direction: 'row',
@@ -56,8 +45,6 @@ export default function POS({
     splitPercentage: 66
   });
 
-  useEffect(() => { setOrderItems(Object.values(orderItemsMap)); }, [orderItemsMap]);
-
   return (
     <React.Fragment>
       <Mosaic<ViewId>
@@ -66,7 +53,7 @@ export default function POS({
             return (
               <MosaicWindow<string> path={path} createNode={() => 'new'} title={TITLE_MAP[id]}>
                 <section>
-                  <ItemList org={org} selectedItemsMap={orderItemsMap} setSelectedItemsMap={setOrderItemsMap} />
+                  <ItemList org={org} orderItems={orderItems} setOrderItems={setOrderItems} />
                 </section>
               </MosaicWindow>
             );
@@ -74,7 +61,7 @@ export default function POS({
             return (
               <MosaicWindow<string> path={path} createNode={() => 'new'} title={TITLE_MAP[id]}>
                 <section>
-                  <OrderTotal itemsMap={orderItemsMap} />
+                  <OrderTotal order={order} setOrder={setOrder} itemsMap={orderItems} />
                 </section>
               </MosaicWindow>
             );
@@ -82,7 +69,7 @@ export default function POS({
             return (
               <MosaicWindow<string> path={path} createNode={() => 'new'} title={TITLE_MAP[id]}>
                 <section>
-                  <OrderItemList items={orderItems} />
+                  <OrderItemList items={orderItems} setItems={setOrderItems} />
                 </section>
               </MosaicWindow>
             );
@@ -90,7 +77,7 @@ export default function POS({
             return (
               <MosaicWindow<string> path={path} createNode={() => 'new'} title={TITLE_MAP[id]}>
                 <section>
-                  <Payment />
+                  <Payment order={order} setOrder={setOrder} orderItems={orderItems} setOrderItems={setOrderItems} />
                 </section>
               </MosaicWindow>
             );
@@ -108,8 +95,8 @@ export default function POS({
             </MosaicWindow>
           );
         }}
-        value={treeState}
-        onChange={setTreeState}
+        value={mosaicState}
+        onChange={setMosaicState}
       />
     </React.Fragment>
   );
