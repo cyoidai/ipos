@@ -1,13 +1,14 @@
 'use client';
 
-import useFetch from '@/useFetch';
-import Table from 'react-bootstrap/table';
+import { CreateItemModal, EditItemModal, DeleteItemModal } from './modals';
 import { Item } from '@/item';
 import { Organization } from '@/org';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import { CreateItemModal, EditItemModal, DeleteItemModal } from './modals';
+import React, { useState, useEffect } from 'react';
+import Table from 'react-bootstrap/table';
+import useFetch from '@/useFetch';
 
 export default function InventoryTable({
   org
@@ -18,6 +19,13 @@ export default function InventoryTable({
   const cols = 7;
 
   const [query, setQuery] = useState<string>('');
+  const { data, isLoading, error } = useFetch<Item[]>('/api/v1/item', { orgId: org.id, query });
+  const [itemsToRestock, setItemsToRestock] = useState<Item[]>([]);
+  useEffect(() => {
+    if (data)
+      setItemsToRestock(data.filter((item) => item.qty <= item.reorderThreshold));
+  }, [data]);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -37,8 +45,6 @@ export default function InventoryTable({
   }
 
   function TableBody() {
-
-    const { data, isLoading, error } = useFetch<Item[]>('/api/v1/item', { orgId: org.id, query });
 
     if (isLoading) {
       return (
@@ -95,7 +101,14 @@ export default function InventoryTable({
     );
   }
   return (
-    <div>
+    <React.Fragment>
+      {
+        itemsToRestock.length > 0
+          ? <Alert variant='warning'>
+              The following items require reordering: {itemsToRestock.map((item) => item.name).join(', ')}.
+            </Alert>
+          : null
+      }
       <Form.Control
         type='text' placeholder='Search by name or SKU' value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -119,6 +132,6 @@ export default function InventoryTable({
       <CreateItemModal show={showCreateModal} setShow={setShowCreateModal} org={org} />
       <EditItemModal show={showEditModal} setShow={setShowEditModal} item={editModalData} />
       <DeleteItemModal show={showDeleteModal} setShow={setShowDeleteModal} item={deleteModalData} />
-    </div>
+    </React.Fragment>
   );
 }

@@ -29,7 +29,7 @@ export default function Payment({
 
   useEffect(() => {
     const paid = Decimal.sum(checkAmount, cashAmount, creditAmount, debitAmount, giftAmount);
-    const due = new Decimal(order.total).sub(paid);
+    const due = Decimal.max(0, new Decimal(order.total).sub(paid));
     const change = Decimal.max(0, paid.sub(order.total));
     setAmountPaid(paid);
     setAmountDue(due);
@@ -58,23 +58,23 @@ export default function Payment({
         <Button className='w-100 py-3' onClick={() => setDebitAmount(Decimal.max(0, amountDue))}>Debit card</Button>
         <Button className='w-100 py-3' onClick={() => setGiftAmount(Decimal.max(0, amountDue))}>Gift card</Button>
         <Form.Control type="number" min={0} step={.01} value={checkAmount.toNumber()} onChange={(e) => {
-          try { setCheckAmount(new Decimal(e.target.value)); }
+          try { setCheckAmount(new Decimal(e.target.value).toDecimalPlaces(2)); }
           catch { setCheckAmount(new Decimal(0)); }
         }} />
         <Form.Control type="number" min={0} step={.01} value={cashAmount.toNumber()} onChange={(e) => {
-          try { setCashAmount(new Decimal(e.target.value)); }
+          try { setCashAmount(new Decimal(e.target.value).toDecimalPlaces(2)); }
           catch { setCashAmount(new Decimal(0)); }
         }} />
         <Form.Control type="number" value={creditAmount.toNumber()} onChange={(e) => {
-          try { setCreditAmount(new Decimal(e.target.value)); }
+          try { setCreditAmount(new Decimal(e.target.value).toDecimalPlaces(2)); }
           catch { setCreditAmount(new Decimal(0)); }
         }} />
         <Form.Control type="number" min={0} step={.01} value={debitAmount.toNumber()} onChange={(e) => {
-          try { setDebitAmount(new Decimal(e.target.value)); }
+          try { setDebitAmount(new Decimal(e.target.value).toDecimalPlaces(2)); }
           catch { setDebitAmount(new Decimal(0)); }
         }} />
         <Form.Control type="number" min={0} step={.01} value={giftAmount.toNumber()} onChange={(e) => {
-          try { setGiftAmount(new Decimal(e.target.value)); }
+          try { setGiftAmount(new Decimal(e.target.value).toDecimalPlaces(2)); }
           catch { setGiftAmount(new Decimal(0)); }
         }} />
       </div>

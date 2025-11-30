@@ -19,7 +19,7 @@ INSERT INTO item (org_id, sku, name, description, qty, price, reorder_threshold)
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'DRK-103', 'Energy Drink', 'Caffeinated energy drink, 355mL can', 19, 2.99, 10),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'SNK-201', 'Potato Chips', 'Classic salted potato chips, 200g bag', 34, 3.49, 10),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'SNK-202', 'Trail Mix', 'Nut and dried fruit mix, 150g pouch', 16, 4.99, 6),
-    ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'HHS-301', 'Hand Sanitizer', 'Travel-size alcohol hand sanitizer, 60mL', 28, 1.59, 10),
+    ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'HHS-301', 'Hand Sanitizer', 'Travel-size alcohol hand sanitizer, 60mL', 9, 1.59, 10),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'HHS-302', 'AA Batteries (4-pack)', 'Alkaline AA batteries, 4 per pack', 12, 5.99, 4),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'PRD-401', 'Paper Towels', '2-pack of absorbent paper towel rolls', 14, 3.79, 6),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'FRZ-501', 'Ice Cream Sandwich', 'Vanilla ice cream between chocolate wafers', 21, 1.29, 10),

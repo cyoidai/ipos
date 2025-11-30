@@ -77,7 +77,7 @@ export default function Layout({
         display: 'grid',
         gridTemplateColumns: 'fit-content(150px) 1fr'
       }}>
-        <Sidebar hidden={pathname.match(/\/org\/\d+\/pos/) ? true : false} />
+        <Sidebar hidden={!pathname.match(/\org\/\d+/) || pathname.match(/\/org\/\d+\/pos/) ? true : false} />
         <div className={`w-auto ${pathname.match(/\/org\/\d+\/pos/) ? '' : 'm-4'}`}>
           {children}
         </div>
