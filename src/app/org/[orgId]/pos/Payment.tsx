@@ -101,7 +101,7 @@ export default function Payment({
       <div className="d-grid gap-1">
         <Button
           variant="success" onClick={handleConfirmOrder}
-          disabled={amountDue <= new Decimal(0) || order.total == 0 ? false : true}
+          disabled={amountDue > new Decimal(0) || order.total == 0 ? true : false}
         >
           Confirm order
         </Button>

@@ -9,10 +9,12 @@ export class OrderItem extends Item {
 export class Order {
   id: number = -1;
   orgId: number = -1;
-  authorized_by: User = new User();
+  authorizedBy: User = new User();
   items: OrderItem[] = [];
   subtotal: number = 0;
   tax: number = 0;
   total: number = 0;
   time: number = 0;
+
+  itemCount: number = 0;
 }

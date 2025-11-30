@@ -383,26 +383,74 @@ app.get('/api/v1/order', [
     return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
   try {
     const resp = await client.query(`
-      SELECT "order".id AS "id", "order".org_id AS "orgId", "user".id AS "authorizedBy_userId", "order".time
+      SELECT "order".id
+        , "order".org_id AS "orgId"
+        , "user".id AS userId
+        , "user".username AS username
+        , "user".first_name AS "firstName"
+        , "user".last_name AS "lastName"
+        , COUNT(order_item.item_id) AS item_count
+        , subtotal, tax, total
+        , time
       FROM "order"
-      INNER JOIN order_item ON order_item.order_id = "order".id
-      INNER JOIN item ON order_item.item_id = item.id
       INNER JOIN "user" ON "user".id = "order".authorized_by
-      WHERE "order".org_id = $1;
+      INNER JOIN order_item ON "order".id = order_item.order_id
+      WHERE "order".org_id = $1
+      GROUP BY "order".id, "user".id
+      ORDER BY time DESC;
       `, [req.query.orgId]);
-    // const data = [];
-    // resp.rows.forEach((obj) => {
-    //   data.push({
-    //     id: obj.id,
-    //     orgId: obj.orgId,
-    //     authorizedBy: {
-    //       userId: obj.authorizedBy_id,
-    //       username: obj.authorizedBy_username,
-    //       firstName: obj.authorizedBy_firstName,
-    //       lastName: obj.authorizedBy_lastName
-    //     }
-    //   });
-    // });
+    const data: {
+      id: number,
+      orgId: number,
+      authorizedBy: {
+        userId: number,
+        username: string,
+        firstName: string,
+        lastName: string
+      },
+      itemCount: number,
+      subtotal: string,
+      tax: string,
+      total: string,
+      time: string
+    }[] = [];
+    resp.rows.forEach((order) => {
+      data.push({
+        id: order.id,
+        orgId: order.orgId,
+        authorizedBy: {
+          userId: order.userId,
+          username: order.username,
+          firstName: order.firstName,
+          lastName: order.lastName
+        },
+        itemCount: order.item_count,
+        subtotal: order.subtotal,
+        tax: order.tax,
+        total: order.total,
+        time: order.time
+      });
+    });
+    return res.status(constants.HTTP_STATUS_OK).json(data);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
+app.get('/api/v1/order/item', [
+  query('orderId').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    const resp = await client.query(`
+      SELECT name, order_item.price, order_item.qty
+      FROM order_item
+      INNER JOIN item ON order_item.item_id = item.id
+      WHERE order_id = $1;
+      `, [req.query.orderId]);
     return res.status(constants.HTTP_STATUS_OK).json(resp.rows);
   } catch (error) {
     console.log(error);

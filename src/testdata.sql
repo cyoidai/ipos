@@ -35,3 +35,114 @@ INSERT INTO "user"(org_id, username, first_name, last_name, password, role_id) V
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'asmith', 'Alice', 'Smith', digest('letmein', 'sha512'), (SELECT role.id FROM role INNER JOIN org ON org.id = role.org_id WHERE role.name = 'Supervisor' AND org.name = 'Abbott Convenience')),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'bwilson', 'Bob', 'Wilson', digest('qwerty', 'sha512'), (SELECT role.id FROM role INNER JOIN org ON org.id = role.org_id WHERE role.name = 'Clerk' AND org.name = 'Abbott Convenience')),
     ((SELECT id FROM org WHERE name = 'Abbott Convenience'), 'cnguyen', 'Chi', 'Nguyen', digest('secretpass', 'sha512'), (SELECT role.id FROM role INNER JOIN org ON org.id = role.org_id WHERE role.name = 'Clerk' AND org.name = 'Abbott Convenience'));
+
+DO $$
+DECLARE
+    v_order_id integer;
+    v_subtotal real;
+BEGIN
+    INSERT INTO "order"(org_id, authorized_by, subtotal, tax, total, time)
+    VALUES (
+            (SELECT id FROM org WHERE name = 'Abbott Convenience')
+        , (SELECT id FROM "user" WHERE username = 'jdoe')
+        , 0, 0, 0
+        , (SELECT EXTRACT(EPOCH FROM NOW()))
+    )
+    RETURNING id INTO v_order_id;
+    INSERT INTO order_item(order_id, item_id, price, qty)
+    VALUES
+        (v_order_id, (SELECT id FROM item WHERE name = 'Chocolate Bar'), (SELECT price FROM item WHERE name = 'Chocolate Bar'), 2),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Energy Drink'), (SELECT price FROM item WHERE name = 'Energy Drink'), 1),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Paper Towels'), (SELECT price FROM item WHERE name = 'Paper Towels'), 1),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Gummy Bears'), (SELECT price FROM item WHERE name = 'Gummy Bears'), 2);
+    SELECT SUM(price * qty) INTO v_subtotal FROM order_item WHERE "order_id" = v_order_id;
+    UPDATE "order" SET subtotal = v_subtotal, tax = v_subtotal * .04, total = v_subtotal * 1.04 WHERE id = v_order_id;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$
+DECLARE
+    v_order_id integer;
+    v_subtotal real;
+BEGIN
+    INSERT INTO "order"(org_id, authorized_by, subtotal, tax, total, time)
+    VALUES (
+            (SELECT id FROM org WHERE name = 'Abbott Convenience')
+        , (SELECT id FROM "user" WHERE username = 'jdoe')
+        , 0, 0, 0
+        , (SELECT EXTRACT(EPOCH FROM NOW()))
+    )
+    RETURNING id INTO v_order_id;
+    INSERT INTO order_item(order_id, item_id, price, qty)
+    VALUES
+        (v_order_id, (SELECT id FROM item WHERE name = 'AA Batteries (4-pack)'), (SELECT price FROM item WHERE name = 'AA Batteries (4-pack)'), 1),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Energy Drink'), (SELECT price FROM item WHERE name = 'Energy Drink'), 4),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Paper Towels'), (SELECT price FROM item WHERE name = 'Paper Towels'), 4),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Gummy Bears'), (SELECT price FROM item WHERE name = 'Gummy Bears'), 2);
+    SELECT SUM(price * qty) INTO v_subtotal FROM order_item WHERE "order_id" = v_order_id;
+    UPDATE "order" SET subtotal = v_subtotal, tax = v_subtotal * .04, total = v_subtotal * 1.04 WHERE id = v_order_id;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$
+DECLARE
+    v_order_id integer;
+    v_subtotal real;
+BEGIN
+    INSERT INTO "order"(org_id, authorized_by, subtotal, tax, total, time)
+    VALUES (
+            (SELECT id FROM org WHERE name = 'Abbott Convenience')
+        , (SELECT id FROM "user" WHERE username = 'asmith')
+        , 0, 0, 0
+        , (SELECT EXTRACT(EPOCH FROM NOW()))
+    )
+    RETURNING id INTO v_order_id;
+    INSERT INTO order_item(order_id, item_id, price, qty)
+    VALUES
+        (v_order_id, (SELECT id FROM item WHERE name = 'Chocolate Bar'), (SELECT price FROM item WHERE name = 'Chocolate Bar'), 3),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Iced Tea'), (SELECT price FROM item WHERE name = 'Iced Tea'), 1),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Energy Drink'), (SELECT price FROM item WHERE name = 'Energy Drink'), 3),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Paper Towels'), (SELECT price FROM item WHERE name = 'Paper Towels'), 1),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Ice Cream Sandwich'), (SELECT price FROM item WHERE name = 'Ice Cream Sandwich'), 4);
+    SELECT SUM(price * qty) INTO v_subtotal FROM order_item WHERE "order_id" = v_order_id;
+    UPDATE "order" SET subtotal = v_subtotal, tax = v_subtotal * .04, total = v_subtotal * 1.04 WHERE id = v_order_id;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$
+DECLARE
+    v_order_id integer;
+    v_subtotal real;
+BEGIN
+    INSERT INTO "order"(org_id, authorized_by, subtotal, tax, total, time)
+    VALUES (
+            (SELECT id FROM org WHERE name = 'Abbott Convenience')
+        , (SELECT id FROM "user" WHERE username = 'bwilson')
+        , 0, 0, 0
+        , (SELECT EXTRACT(EPOCH FROM NOW()))
+    )
+    RETURNING id INTO v_order_id;
+    INSERT INTO order_item(order_id, item_id, price, qty)
+    VALUES
+        (v_order_id, (SELECT id FROM item WHERE name = 'Chocolate Bar'), (SELECT price FROM item WHERE name = 'Chocolate Bar'), 3),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Iced Tea'), (SELECT price FROM item WHERE name = 'Iced Tea'), 1),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Energy Drink'), (SELECT price FROM item WHERE name = 'Energy Drink'), 10),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Paper Towels'), (SELECT price FROM item WHERE name = 'Paper Towels'), 2),
+        (v_order_id, (SELECT id FROM item WHERE name = 'Ice Cream Sandwich'), (SELECT price FROM item WHERE name = 'Ice Cream Sandwich'), 4);
+    SELECT SUM(price * qty) INTO v_subtotal FROM order_item WHERE "order_id" = v_order_id;
+    UPDATE "order" SET subtotal = v_subtotal, tax = v_subtotal * .04, total = v_subtotal * 1.04 WHERE id = v_order_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TABLE "order"(
+    id         serial8 PRIMARY KEY,
+    org_id        int4 NOT NULL,
+    authorized_by int4 NOT NULL,
+    subtotal      numeric(10, 2) NOT NULL,
+    tax           numeric(10, 2) NOT NULL,
+    total         numeric(10, 2) NOT NULL,
+    time          int8 NOT NULL,
+
+    FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
+    FOREIGN KEY (authorized_by) REFERENCES "user"(id) ON DELETE CASCADE
+);
