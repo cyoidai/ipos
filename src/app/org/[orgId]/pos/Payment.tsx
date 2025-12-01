@@ -1,16 +1,20 @@
 import { Order, OrderItem } from "@/order";
+import { Organization } from "@/org";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Decimal from "decimal.js";
 import Form from "react-bootstrap/Form";
 import Table from 'react-bootstrap/Table';
 
 export default function Payment({
+  org,
   order,
   setOrder,
   orderItems,
   setOrderItems
 }: {
+  org: Organization,
   order: Order,
   setOrder: (order: Order) => void,
   orderItems: Map<string, OrderItem>,
@@ -37,7 +41,26 @@ export default function Payment({
   }, [order, checkAmount, cashAmount, creditAmount, debitAmount, giftAmount]);
 
   function handleConfirmOrder() {
-
+    const items = orderItems.values().map((item) => {
+      return {
+        id: item.id,
+        price: item.price,
+        qty: item.orderQty
+      };
+    }).toArray();
+    axios.post('/api/v1/order', {
+      orgId: org.id,
+      authorizedBy: 2,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      total: order.total,
+      items: items
+    }).then((res) => {
+      setOrder(new Order());
+      setOrderItems(new Map<string, OrderItem>());
+    }).catch((error) => {
+      alert('something went wrong');
+    });
   }
 
   function handleCancelOrder() {
@@ -52,11 +75,11 @@ export default function Payment({
         gridTemplateRows: 'auto auto',
         gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr'
       }}>
-        <Button className='w-100 py-3' onClick={() => setCheckAmount(Decimal.max(0, amountDue))}>Check</Button>
-        <Button className='w-100 py-3' onClick={() => setCashAmount(Decimal.max(0, amountDue))}>Cash</Button>
-        <Button className='w-100 py-3' onClick={() => setCreditAmount(Decimal.max(0, amountDue))}>Credit card</Button>
-        <Button className='w-100 py-3' onClick={() => setDebitAmount(Decimal.max(0, amountDue))}>Debit card</Button>
-        <Button className='w-100 py-3' onClick={() => setGiftAmount(Decimal.max(0, amountDue))}>Gift card</Button>
+        <Button className='w-100 py-3' onClick={() => setCheckAmount(checkAmount.plus(Decimal.max(0, amountDue)))}>Check</Button>
+        <Button className='w-100 py-3' onClick={() => setCashAmount(cashAmount.add(Decimal.max(0, amountDue)))}>Cash</Button>
+        <Button className='w-100 py-3' onClick={() => setCreditAmount(creditAmount.add(Decimal.max(0, amountDue)))}>Credit card</Button>
+        <Button className='w-100 py-3' onClick={() => setDebitAmount(debitAmount.add(Decimal.max(0, amountDue)))}>Debit card</Button>
+        <Button className='w-100 py-3' onClick={() => setGiftAmount(giftAmount.add(Decimal.max(0, amountDue)))}>Gift card</Button>
         <Form.Control type="number" min={0} step={.01} value={checkAmount.toNumber()} onChange={(e) => {
           try { setCheckAmount(new Decimal(e.target.value).toDecimalPlaces(2)); }
           catch { setCheckAmount(new Decimal(0)); }

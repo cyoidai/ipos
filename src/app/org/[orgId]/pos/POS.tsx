@@ -77,7 +77,7 @@ export default function POS({
             return (
               <MosaicWindow<string> path={path} createNode={() => 'new'} title={TITLE_MAP[id]}>
                 <section>
-                  <Payment order={order} setOrder={setOrder} orderItems={orderItems} setOrderItems={setOrderItems} />
+                  <Payment org={org} order={order} setOrder={setOrder} orderItems={orderItems} setOrderItems={setOrderItems} />
                 </section>
               </MosaicWindow>
             );

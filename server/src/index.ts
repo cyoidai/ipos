@@ -438,6 +438,43 @@ app.get('/api/v1/order', [
   }
 });
 
+app.post('/api/v1/order', [
+  body('orgId').isInt(),
+  body('authorizedBy').isInt(),
+  body('subtotal').isFloat(),
+  body('tax').isFloat(),
+  body('total').isFloat(),
+  body('items').isArray(),
+  body('items.*.id').isInt(),
+  body('items.*.price').isFloat(),
+  body('items.*.qty').isInt()
+], async (req: Request, res: Response) => {
+  const response = validationResult(req);
+  if (!response.isEmpty())
+    return res.status(constants.HTTP_STATUS_BAD_REQUEST).json({ msg: 'validation error', errors: response.array() });
+  try {
+    await client.query('BEGIN;');
+    const orderId = (await client.query(`
+      INSERT INTO "order"(org_id, authorized_by, subtotal, tax, total, time)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id;`
+      , [req.body.orgId, req.body.authorizedBy, req.body.subtotal, req.body.tax, req.body.total, Math.round(Date.now() / 1000)]))
+      .rows[0].id;
+    for (const item of req.body.items) {
+      await client.query(`
+        INSERT INTO order_item(order_id, item_id, price, qty)
+        VALUES ($1, $2, $3, $4);`
+        , [orderId, item.id, item.price, item.qty]);
+    }
+    await client.query('COMMIT;');
+    res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
+  } catch (error) {
+    await client.query('ROLLBACK;');
+    console.log(error);
+    res.sendStatus(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  }
+});
+
 app.get('/api/v1/order/item', [
   query('orderId').isInt()
 ], async (req: Request, res: Response) => {
