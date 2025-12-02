@@ -409,9 +409,9 @@ app.get('/api/v1/order', [
         lastName: string
       },
       itemCount: number,
-      subtotal: string,
-      tax: string,
-      total: string,
+      subtotal: number,
+      tax: number,
+      total: number,
       time: string
     }[] = [];
     resp.rows.forEach((order) => {
@@ -425,9 +425,9 @@ app.get('/api/v1/order', [
           lastName: order.lastName
         },
         itemCount: order.item_count,
-        subtotal: order.subtotal,
-        tax: order.tax,
-        total: order.total,
+        subtotal: parseFloat(order.subtotal),
+        tax: parseFloat(order.tax),
+        total: parseFloat(order.total),
         time: order.time
       });
     });
