@@ -222,7 +222,7 @@ export function DeleteItemModal({
       if (onAccept)
         onAccept();
     }).then((error) => {
-      alert('failed to delete item');
+      // alert('failed to delete item');
       if (onReject)
         onReject();
     });
