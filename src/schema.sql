@@ -36,7 +36,7 @@ CREATE TABLE item(
     name              text NOT NULL,
     description       text NOT NULL DEFAULT '',
     icon_path         text NOT NULL DEFAULT '',
-    qty               int4 NOT NULL DEFAULT 0 CHECK (qty >= 0),
+    qty               int4 NOT NULL DEFAULT 0, -- qty can go negative, it's merely an estimation of current stock
     price   numeric(10, 2) NOT NULL DEFAULT 0 CHECK (price >= 0),
     reorder_threshold int4 NOT NULL DEFAULT 0, -- <=0 indicates disabled
     search        tsvector GENERATED ALWAYS AS (
@@ -70,7 +70,7 @@ CREATE TABLE order_item(
     order_id        int8 NOT NULL,
     item_id         int4 NOT NULL,
     price numeric(10, 2) NOT NULL, -- store copy of item's price at the time of the order
-    qty              int NOT NULL DEFAULT 1 CHECK (qty != 0),
+    qty              int NOT NULL DEFAULT 1 CHECK (qty != 0), -- allow negative for handling returns
 
     PRIMARY KEY (order_id, item_id),
     FOREIGN KEY (order_id) REFERENCES "order"(id) ON DELETE CASCADE,

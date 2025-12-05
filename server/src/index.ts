@@ -465,6 +465,11 @@ app.post('/api/v1/order', [
         INSERT INTO order_item(order_id, item_id, price, qty)
         VALUES ($1, $2, $3, $4);`
         , [orderId, item.id, item.price, item.qty]);
+      await client.query(`
+        UPDATE item
+        SET qty = qty - $1
+        WHERE id = $2;`
+        , [item.qty, item.id]);
     }
     await client.query('COMMIT;');
     res.status(constants.HTTP_STATUS_OK).json({ msg: 'OK' });
