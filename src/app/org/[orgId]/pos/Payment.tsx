@@ -66,6 +66,11 @@ export default function Payment({
   function handleCancelOrder() {
     setOrder(new Order());
     setOrderItems(new Map<string, OrderItem>());
+    setCheckAmount(new Decimal(0));
+    setCashAmount(new Decimal(0));
+    setCreditAmount(new Decimal(0));
+    setDebitAmount(new Decimal(0));
+    setGiftAmount(new Decimal(0));
   }
 
   return (

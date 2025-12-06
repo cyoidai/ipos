@@ -128,10 +128,12 @@ CREATE TABLE audit_log(
 );
 
 CREATE TABLE schedule(
-    id      serial8 PRIMARY KEY,
-    org_id     int4 NOT NULL,
-    start_time int8 NOT NULL,
-    end_time   int8 NOT NULL,
+    id           serial8 PRIMARY KEY,
+    org_id          int4 NOT NULL,
+    name            text NOT NULL DEFAULT '',
+    description     text NOT NULL DEFAULT '',
+    start_time timestamp NOT NULL,
+    end_time   timestamp NOT NULL,
 
     FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE
 );
