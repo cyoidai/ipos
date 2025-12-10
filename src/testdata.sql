@@ -133,16 +133,3 @@ BEGIN
     UPDATE "order" SET subtotal = v_subtotal, tax = v_subtotal * .04, total = v_subtotal * 1.04 WHERE id = v_order_id;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TABLE "order"(
-    id         serial8 PRIMARY KEY,
-    org_id        int4 NOT NULL,
-    authorized_by int4 NOT NULL,
-    subtotal      numeric(10, 2) NOT NULL,
-    tax           numeric(10, 2) NOT NULL,
-    total         numeric(10, 2) NOT NULL,
-    time          int8 NOT NULL,
-
-    FOREIGN KEY (org_id) REFERENCES org(id) ON DELETE CASCADE,
-    FOREIGN KEY (authorized_by) REFERENCES "user"(id) ON DELETE CASCADE
-);

@@ -25,11 +25,11 @@ export default function Sidebar({
           <ListGroupItem><strong>Management</strong></ListGroupItem>
           <ListGroupItem action active={pathname.match(/\/dashboard/) ? true : false} href='dashboard'>Dashboard</ListGroupItem>
           <ListGroupItem action active={pathname.match(/\/orders/)    ? true : false} href='orders'>Order history</ListGroupItem>
-          <ListGroupItem action active={pathname.match(/\/reports/)   ? true : false} href='report'>Reports</ListGroupItem>
+          {/* <ListGroupItem action active={pathname.match(/\/reports/)   ? true : false} href='report'>Reports</ListGroupItem> */}
           <ListGroupItem><strong>Administration</strong></ListGroupItem>
           <ListGroupItem action active={pathname.match(/\/roles/)     ? true : false} href='roles'>Roles</ListGroupItem>
           <ListGroupItem action active={pathname.match(/\/users/)     ? true : false} href='users'>Users</ListGroupItem>
-          <ListGroupItem action active={pathname.match(/\/config/)    ? true : false} href='config'>Settings</ListGroupItem>
+          {/* <ListGroupItem action active={pathname.match(/\/config/)    ? true : false} href='config'>Settings</ListGroupItem> */}
         </ListGroup>
       </nav>
     </aside>

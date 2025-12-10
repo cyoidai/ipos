@@ -60,12 +60,12 @@ export default function Layout({
                   <NavDropdown title="Management" id="basic-nav-dropdown">
                     <NavDropdown.Item href="dashboard">Dashboard</NavDropdown.Item>
                     <NavDropdown.Item href="orders">Order history</NavDropdown.Item>
-                    <NavDropdown.Item href="reports">Reports</NavDropdown.Item>
+                    {/* <NavDropdown.Item href="reports">Reports</NavDropdown.Item> */}
                   </NavDropdown>
                   <NavDropdown title="Administration" id="basic-nav-dropdown">
                     <NavDropdown.Item href="roles">Roles</NavDropdown.Item>
                     <NavDropdown.Item href="users">Users</NavDropdown.Item>
-                    <NavDropdown.Item href="config">Settings</NavDropdown.Item>
+                    {/* <NavDropdown.Item href="config">Settings</NavDropdown.Item> */}
                   </NavDropdown>
                 </Nav> : null
               }

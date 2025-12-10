@@ -23,7 +23,7 @@ export function CreateUserModal({
   onReject?: () => void
 }) {
 
-  const [user, setUser] = useState<User>(new User());
+  const [user, setUser] = useState<User>({ ...new User(), orgId: org.id });
   const [password, setPassword] = useState('');
 
   function handleSubmit(event: React.FormEvent) {
